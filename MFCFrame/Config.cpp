@@ -53,7 +53,7 @@ namespace Config {
 		try {
 			read_json<ptree>(SERVER_CONFIG_PATH, pt);
 			info.url = pt.get<string>("url");
-			info.dbport = pt.get<UINT16>("dbport");
+			info.reqport = pt.get<UINT16>("reqport");
 			info.textport = pt.get<UINT16>("textport");
 
 			info.loginUser = pt.get<string>("user");
@@ -68,7 +68,7 @@ namespace Config {
 		ptree pt;
 		auto& info = Config::getServerInfo();
 		pt.put<string>("url", info.url);
-		pt.put<UINT16>("dbport", info.dbport);
+		pt.put<UINT16>("reqport", info.reqport);
 		pt.put<UINT16>("textport", info.textport);
 
 		pt.put<string>("user", info.loginUser);
@@ -81,7 +81,7 @@ namespace Config {
 		serverInfo.loginPass.clear();
 		serverInfo.loginUser.clear();
 		serverInfo.textport = 0;
-		serverInfo.dbport = 0;
+		serverInfo.reqport = 0;
 		serverInfo.url.clear();
 		serverInfo.load = false;
 	}

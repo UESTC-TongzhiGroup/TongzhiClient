@@ -59,7 +59,7 @@ BOOL CServerSet::OnInitDialog()
 		return TRUE;
 	m_url = stdString2CString(serverInfo.url);
 	m_sendport = serverInfo.textport;
-	m_dbport = serverInfo.dbport;
+	m_dbport = serverInfo.reqport;
 
 	m_user = stdString2CString(serverInfo.loginUser);
 	m_pass = stdString2CString(serverInfo.loginPass);
@@ -89,7 +89,7 @@ void CServerSet::OnBnClickedOk()
 	auto &serverInfo = getServerInfo();
 	serverInfo.url = CString2stdString(m_url);
 
-	serverInfo.dbport = m_dbport;
+	serverInfo.reqport = m_dbport;
 	serverInfo.textport = m_sendport;
 
 	serverInfo.loginUser = CString2stdString(m_user);

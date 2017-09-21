@@ -4,5 +4,4 @@
 
 namespace Events{
 	EID CamListUpdate::ID = GlobalEvent::getNextAvailableID();
-	string CamListUpdate::NAME = "CamListUpdate";
 }

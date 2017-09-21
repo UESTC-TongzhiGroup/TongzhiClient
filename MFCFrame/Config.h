@@ -21,17 +21,17 @@ struct ServerConfig
 {
 	bool load = false;
 	string url;
-	UINT16 dbport;
+	UINT16 reqport;
 	UINT16 textport;
 	string loginUser = "", loginPass = "";
 };
 
 typedef enum {
 	Inactive = 0,
-		OnCross,
-		OnInvade,
-		OnWander,
 		OnFight,
+		OnInvade,
+		OnCross,
+		OnWander,
 
 		TOTAL_NUM
 } CamMode;
@@ -40,10 +40,10 @@ typedef std::map<string, string> StrDirc;
 
 const static CString ModeName[CamMode::TOTAL_NUM] = {
 	_T("未激活"),
-	_T("越界"),
+	_T("打斗"),
 	_T("入侵"),
-	_T("徘徊"),
-	_T("打斗")
+	_T("越界"),
+	_T("徘徊")
 };
 
 inline CString getCamModeName(CamMode mode) {

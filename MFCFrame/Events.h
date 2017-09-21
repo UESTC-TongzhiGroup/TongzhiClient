@@ -8,14 +8,13 @@
 namespace Events {
 	class CamListUpdate : public GlobalEvent {
 		static EID ID;
-		static string NAME;
 	public:
 		virtual EID id() {
 			return ID;
 		}
 
 		virtual string name() {
-			return NAME;
+			return "CamListUpdate";
 		}
 	};
 

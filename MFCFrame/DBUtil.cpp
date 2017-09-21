@@ -29,7 +29,7 @@ string getURL() {
 #ifndef TEST_ON_MY_CLUSTER
 	if (!server.load)
 		throw std::exception("服务器配置尚未加载/初始化");
-	ss << "mongodb://" << server.url << ":" << server.dbport;
+	ss << "mongodb://" << server.url << ":" << server.reqport;
 	return ss.str();
 #else
 	return "mongodb://gakongren:7100040k@cluster0-shard-00-00-gdswx.mongodb.net:27017,"
