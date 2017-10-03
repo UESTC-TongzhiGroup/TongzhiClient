@@ -3,7 +3,6 @@
 #include "ImageButton.h"
 #include "CptionBar.h"
 
-#define _MSC_VER 1800
 // CAboutdlg ¶Ô»°¿ò
 
 class CAboutdlg : public CDialogEx

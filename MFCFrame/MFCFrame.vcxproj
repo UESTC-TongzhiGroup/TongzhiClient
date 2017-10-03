@@ -120,8 +120,8 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>E:\C_Lib\opencv-build\install\x64\vc15\lib;E:\C_Lib\mongo-cxx-driver\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>bsoncxx.lib;mongocxx.lib;opencv_calib3d320d.lib;opencv_core320d.lib;opencv_features2d320d.lib;opencv_flann320d.lib;opencv_highgui320d.lib;opencv_imgcodecs320d.lib;opencv_imgproc320d.lib;opencv_ml320d.lib;opencv_objdetect320d.lib;opencv_photo320d.lib;opencv_shape320d.lib;opencv_stitching320d.lib;opencv_superres320d.lib;opencv_video320d.lib;opencv_videoio320d.lib;opencv_videostab320d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\C_Lib\opencv-build\install\x64\vc15\lib;E:\C_Lib\boost_1_64_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libboost_system-vc141-mt-gd-1_64.lib;libboost_date_time-vc141-mt-gd-1_64.lib;libboost_regex-vc141-mt-gd-1_64.lib;opencv_calib3d320d.lib;opencv_core320d.lib;opencv_features2d320d.lib;opencv_flann320d.lib;opencv_highgui320d.lib;opencv_imgcodecs320d.lib;opencv_imgproc320d.lib;opencv_ml320d.lib;opencv_objdetect320d.lib;opencv_photo320d.lib;opencv_shape320d.lib;opencv_stitching320d.lib;opencv_superres320d.lib;opencv_video320d.lib;opencv_videoio320d.lib;opencv_videostab320d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -197,10 +197,10 @@
     <ClInclude Include="AlarmMonitor.h" />
     <ClInclude Include="AlarmSet.h" />
     <ClInclude Include="CameraSet.h" />
+    <ClInclude Include="CamUtils.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="CptionBar.h" />
     <ClInclude Include="CvvImage.h" />
-    <ClInclude Include="DBUtil.h" />
     <ClInclude Include="DeskButton.h" />
     <ClInclude Include="DeskContant.h" />
     <ClInclude Include="DeskPanel.h" />
@@ -209,12 +209,14 @@
     <ClInclude Include="EventBus.h" />
     <ClInclude Include="GlobalSetting.h" />
     <ClInclude Include="ImageButton.h" />
+    <ClInclude Include="JsonInterface.h" />
     <ClInclude Include="MainFrame.h" />
     <ClInclude Include="Frame.h" />
     <ClInclude Include="MenuBarPanel.h" />
     <ClInclude Include="MenuEx.h" />
     <ClInclude Include="ModUser.h" />
     <ClInclude Include="MonitorPanel.h" />
+    <ClInclude Include="NetHandler.h" />
     <ClInclude Include="Panel.h" />
     <ClInclude Include="PeopleManagement.h" />
     <ClInclude Include="Resource.h" />
@@ -240,15 +242,14 @@
     <ClCompile Include="AlarmMonitor.cpp" />
     <ClCompile Include="AlarmSet.cpp" />
     <ClCompile Include="CameraSet.cpp" />
+    <ClCompile Include="CamUtils.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="CptionBar.cpp" />
     <ClCompile Include="CvvImage.cpp" />
-    <ClCompile Include="DBUtil.cpp" />
     <ClCompile Include="DeskButton.cpp" />
     <ClCompile Include="DeskContant.cpp" />
     <ClCompile Include="DeskPanel.cpp" />
     <ClCompile Include="DlgPanel.cpp" />
-    <ClCompile Include="Events.cpp" />
     <ClCompile Include="EventBus.cpp" />
     <ClCompile Include="GlobalSetting.cpp" />
     <ClCompile Include="ImageButton.cpp" />
@@ -258,6 +259,8 @@
     <ClCompile Include="MenuEx.cpp" />
     <ClCompile Include="ModUser.cpp" />
     <ClCompile Include="MonitorPanel.cpp" />
+    <ClCompile Include="NetHandler.cpp" />
+    <ClCompile Include="NetMessage.h" />
     <ClCompile Include="Panel.cpp" />
     <ClCompile Include="PeopleManagement.cpp" />
     <ClCompile Include="ServerSet.cpp" />

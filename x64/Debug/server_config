@@ -1,7 +1,6 @@
 {
     "url": "192.168.1.76",
-    "dbport": "8000",
-    "textport": "8080",
-    "user": "aa",
-    "passwd": "8888"
+    "reqport": "7777",
+    "user": "wy",
+    "passwd": "123"
 }

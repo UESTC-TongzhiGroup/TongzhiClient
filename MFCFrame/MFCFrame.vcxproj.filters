@@ -30,9 +30,6 @@
     <ClInclude Include="Config.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="DBUtil.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="StrUtil.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -141,15 +138,21 @@
     <ClInclude Include="EventBus.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="NetHandler.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CamUtils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonInterface.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Config.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="DBUtil.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="StrUtil.cpp">
@@ -254,10 +257,16 @@
     <ClCompile Include="UITreeCtrl.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Events.cpp">
+    <ClCompile Include="EventBus.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="EventBus.cpp">
+    <ClCompile Include="NetHandler.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="NetMessage.h">
+      <Filter>头文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CamUtils.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

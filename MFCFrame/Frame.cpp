@@ -36,7 +36,7 @@ CFrameApp theApp;
 
 BOOL CFrameApp::InitInstance()
 {
-	_CrtSetBreakAlloc(154);
+	//_CrtSetBreakAlloc(1169);
 	CWinApp::InitInstance();
 
 	Config::loadLicense();

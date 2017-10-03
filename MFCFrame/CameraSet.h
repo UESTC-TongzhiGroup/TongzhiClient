@@ -2,7 +2,7 @@
 #include "afxwin.h"
 #include "afxcmn.h"
 #include "Resource.h"
-#include "DBUtil.h"
+//TODO: #include "DBUtil.h"
 #include "Config.h"
 
 // CCameraSet ¶Ô»°¿ò
@@ -24,7 +24,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 	void updateSel();
-	void updateEventListItem(int, const CameraConfig&);
+	//void updateEventListItem(int, const CameraConfig&);
 	virtual BOOL OnInitDialog();
 	CamMode getMode(int sel);
 	CamMode getMode();
@@ -38,7 +38,7 @@ private:
 	CComboBox timeStart;
 	CComboBox timeEnd;
 
-	DBHelper helper;
+	//DBHelper helper;
 
 	static CCameraSet * m_pThis;
 	CamList tmpInfo;

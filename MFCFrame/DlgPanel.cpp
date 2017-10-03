@@ -9,7 +9,7 @@
 
 #include "Config.h"
 #include "StrUtil.h"
-#include "DBUtil.h"
+//#include "DBUtil.h"
 
 // CDlgPanel ¶Ô»°¿ò
 
@@ -89,8 +89,8 @@ void CDlgPanel::OnLButtonUp(UINT nFlags, CPoint point)
 	area.SetRect(downPoint.x, downPoint.y, currentPoint.x, currentPoint.y);
 	area.NormalizeRect();
 	try {
-		DBHelper helper;
-		helper.updateCamArea(m_index, area);
+		//DBHelper helper;
+		//helper.updateCamArea(m_index, area);
 	}
 	catch (std::exception e) {
 #ifdef _DEBUG
@@ -195,7 +195,7 @@ UINT taskVideo(LPVOID param)
 
 	int &sel = pTaskMain->m_index;
 	auto &status = pTaskMain->status[sel];
-	std::string videoPath = Config::getCamByIndex(sel).getFullURL();
+	std::string videoPath = Cams::getCamInfo()[sel].getFullURL();
 	cv::VideoCapture cap;
 	TRACE(videoPath.c_str());
 	TRACE("\n");

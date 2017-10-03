@@ -101,7 +101,7 @@ void CUserLogin::OnBnClickedOk()
 	//==只能用来与LPTSTR进行相等判断,两个CString之间使用CString::Compare
 	else if(checkLicense(c,b))
 	{
-		MessageBox(_T("登陆成功！"), _T("登陆"));//这句可有可无        
+		//MessageBox(_T("登陆成功！"), _T("登陆"));//这句可有可无        
 	}
 	else
 	{

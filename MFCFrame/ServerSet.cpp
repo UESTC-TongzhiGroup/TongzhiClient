@@ -5,12 +5,13 @@
 #include "Frame.h"
 #include "ServerSet.h"
 #include "MenuBarPanel.h"
+#include "NetHandler.h"
+#include "EventBus.h"
+#include "Events.h"
 #include "Config.h"
 
 
 // CServerSet 对话框
-
-using namespace Config;
 
 IMPLEMENT_DYNAMIC(CServerSet, CDialogEx)
 
@@ -20,7 +21,7 @@ CServerSet::CServerSet(CWnd* pParent /*=NULL*/)
 	, m_pass(_T(""))
 	, m_url(_T(""))
 	, m_sendport(0)
-	, m_dbport(0)
+	, notAdmin(FALSE)
 {
 	m_pThis = this;
 }
@@ -36,11 +37,10 @@ void CServerSet::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT_PASS, m_pass);
 
 	DDX_Text(pDX, IDC_SERVER_PORT_SEND, m_sendport);
-	DDX_Text(pDX, IDC_SERVER_PORT_DB, m_dbport);
 
 	DDV_MinMaxUInt(pDX, m_sendport, 0, 65535);
-	DDV_MinMaxUInt(pDX, m_dbport, 0, 65535);
 	DDX_Text(pDX, IDC_SERVER_IP, m_url);
+	DDX_Radio(pDX, IDC_ADMIN, notAdmin);
 }
 
 
@@ -54,12 +54,11 @@ END_MESSAGE_MAP()
 BOOL CServerSet::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
-	auto serverInfo = getServerInfo();
+	auto serverInfo = Config::getServerInfo();
 	if (!serverInfo.load)
 		return TRUE;
 	m_url = stdString2CString(serverInfo.url);
-	m_sendport = serverInfo.textport;
-	m_dbport = serverInfo.reqport;
+	m_sendport = serverInfo.reqport;
 
 	m_user = stdString2CString(serverInfo.loginUser);
 	m_pass = stdString2CString(serverInfo.loginPass);
@@ -86,11 +85,10 @@ int CServerSet::OnCreate(LPCREATESTRUCT lpCreateStruct)
 void CServerSet::OnBnClickedOk()
 {
 	UpdateData();
-	auto &serverInfo = getServerInfo();
+	auto &serverInfo = Config::getServerInfo();
 	serverInfo.url = CString2stdString(m_url);
 
-	serverInfo.reqport = m_dbport;
-	serverInfo.textport = m_sendport;
+	serverInfo.reqport = m_sendport;
 
 	serverInfo.loginUser = CString2stdString(m_user);
 	serverInfo.loginPass = CString2stdString(m_pass);
@@ -98,11 +96,24 @@ void CServerSet::OnBnClickedOk()
 	serverInfo.load = true;
 
 	//TODO: 登录后返回用户类型传递
-	DBHelper helper;
-	UserType type = helper.login();
+	string userType = notAdmin ? "User" : "Admin";
+	Message::LoginMsg msg{ serverInfo.loginUser,serverInfo.loginPass,userType };
+	try {
+		auto reply = MsgHandler::sendReqMsg<Message::LoginMsg>(msg);
+		//SendMessage
+		if (reply.status == "success") {
+			Events::UserLogin e(User::getTypeByStr(userType));
+			EventBus::dispatch(e);
+			Config::saveServerCfg();
 
-	//SendMessage
-
-	saveServerCfg();
+			CServerSet::CloseWindow();
+		}
+		else {
+			auto reason = StrUtil::stdString2CString(reply.meta);
+			MessageBox(reason, _T("登陆失败"));
+		}
+	}
+	catch (boost::system::system_error e) {
+		MessageBox(_T("连接失败: 地址错误或者服务端未开启"), _T("连接错误"));
+	}
 }
-

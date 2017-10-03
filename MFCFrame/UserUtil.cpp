@@ -12,3 +12,8 @@ UserType User::getType(int t)
 		return UserType::User;
 	}
 }
+
+UserType User::getTypeByStr(string str)
+{
+	return (str == "Admin") ? UserType::Admin : UserType::User;
+}

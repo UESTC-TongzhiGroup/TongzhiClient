@@ -3,19 +3,11 @@
 #include <map>
 #include <set>
 
+#define GLOBAL_EVENT (WM_USER+400)
+
 using std::string;
 
 typedef UINT EID;
-
-class GlobalEvent {
-private:
-	static EID NEXT_AVAILABLE;
-public:
-	static EID getNextAvailableID();
-
-	virtual EID id()=0;
-	virtual string name()=0;
-};
 
 class EventBus {
 private:
@@ -30,5 +22,15 @@ private:
 public:
 	static EventBus& getEventBus(EID);
 	static void regist(EID, HWND);
-	static void dispatch(GlobalEvent*);
+
+	template<typename GlobalEvent>
+	static void dispatch(GlobalEvent& _event)
+	{
+		TRACE("分发事件 %s", _event.name());
+		auto ptr = std::make_shared<GlobalEvent>(_event);
+		getEventBus(_event.id()).dispatch(
+			_event.id(),
+			(LPARAM)ptr.get()
+		);
+	}
 };

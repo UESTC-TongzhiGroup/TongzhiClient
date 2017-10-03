@@ -9,27 +9,19 @@
 #include "Config.h"
 
 using namespace boost::property_tree;
-using namespace bsoncxx::builder::stream;
-
-using bsoncxx::builder::stream::open_document;
-using bsoncxx::builder::stream::close_document;
-
 
 ServerConfig serverInfo;
 
-CamList camInfo;
 StrDirc userLicense;
 
 namespace Config {
+	bool isServerCfgLoaded() {
+		return serverInfo.load;
+	}
 
 	ServerConfig& getServerInfo()
 	{
 		return serverInfo;
-	}
-
-	CamList & getCamInfo()
-	{
-		return camInfo;
 	}
 
 	StrDirc& getLicensesMap()
@@ -54,7 +46,6 @@ namespace Config {
 			read_json<ptree>(SERVER_CONFIG_PATH, pt);
 			info.url = pt.get<string>("url");
 			info.reqport = pt.get<UINT16>("reqport");
-			info.textport = pt.get<UINT16>("textport");
 
 			info.loginUser = pt.get<string>("user");
 			info.loginPass = pt.get<string>("passwd");
@@ -69,7 +60,6 @@ namespace Config {
 		auto& info = Config::getServerInfo();
 		pt.put<string>("url", info.url);
 		pt.put<UINT16>("reqport", info.reqport);
-		pt.put<UINT16>("textport", info.textport);
 
 		pt.put<string>("user", info.loginUser);
 		pt.put<string>("passwd", info.loginPass);
@@ -80,7 +70,6 @@ namespace Config {
 	{
 		serverInfo.loginPass.clear();
 		serverInfo.loginUser.clear();
-		serverInfo.textport = 0;
 		serverInfo.reqport = 0;
 		serverInfo.url.clear();
 		serverInfo.load = false;

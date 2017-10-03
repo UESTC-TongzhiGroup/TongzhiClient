@@ -12,4 +12,5 @@ class User {
 	string name;
 public:
 	static UserType getType(int t);
+	static UserType getTypeByStr(string str);
 };

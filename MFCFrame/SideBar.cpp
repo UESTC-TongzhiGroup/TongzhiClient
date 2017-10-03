@@ -15,6 +15,8 @@ using namespace Events;
 #define IDC_EDITSEARCH 10003
 #define IDC_SEARCHBAR 10004
 #define IDC_DESKPANEL  10005
+#define SPLIT_UPDATE TREE_UI_EVENT(IDC_SPLIT_UITREE)
+#define CAM_SEL_UPDATE TREE_UI_EVENT(IDC_CAM_UITREE)
 
 
 CSideBar* CSideBar::instance = nullptr;
@@ -214,7 +216,7 @@ LRESULT CSideBar::UpdateCamTree(WPARAM EID,LPARAM _event) {
 		return TRUE;
 
 	HTREEITEM hRoot = m_CamTreeCtrl.InsertItem(_T("摄像头组"));
-	for (int i = 0; i < Config::getCamInfoNum(); i++)
+	for (int i = 0; i < Cams::getCamInfoNum(); i++)
 	{
 		CString strItem;
 		strItem.Format(_T("%d路摄像头"), i + 1);
@@ -252,7 +254,7 @@ LRESULT CSideBar::OnCamTreeDoubleClk(WPARAM wPar, LPARAM lPar)
 	{
 		HTREEITEM hItem = m_CamTreeCtrl.GetSelectedItem();
 		int camIndex = m_CamTreeCtrl.GetItemData(hItem);
-		if (camIndex < 0 || camIndex >= Config::getCamInfoNum())
+		if (camIndex < 0 || camIndex >= Cams::getCamInfoNum())
 			return FALSE;
 		CVideoPanel *pWnd = CVideoPanel::GetInstance();
 			if (pWnd == NULL)

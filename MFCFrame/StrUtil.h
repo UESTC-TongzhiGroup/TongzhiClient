@@ -20,5 +20,7 @@ namespace StrUtil {
 	
 	vector<CString> splitCString(CString strSource, const char *ch);
 
-	std::string format(const char *fmt, ...);
+	string format(const char *fmt, ...);
+
+	string stdString_To_UTF8(const std::string & str);
 }

@@ -5,7 +5,6 @@
 #include "Frame.h"
 #include "UITreeCtrl.h"
 #include "resource.h"
-
 // CUITreeCtrl
 
 IMPLEMENT_DYNAMIC(CUITreeCtrl, CTreeCtrl)

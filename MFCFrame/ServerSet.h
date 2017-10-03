@@ -3,7 +3,7 @@
 #include "afxwin.h"
 #include "StrUtil.h"
 
-#include "DBUtil.h"
+//TODO: #include "DBUtil.h"
 
 // CServerSet ¶Ô»°¿ò
 
@@ -37,5 +37,6 @@ private:
 	CString m_user;
 	CString m_pass;
 	UINT m_sendport;
-	UINT m_dbport;
+public:
+	BOOL notAdmin;
 };

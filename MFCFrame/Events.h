@@ -1,21 +1,35 @@
 #pragma once
 #include "EventBus.h"
+#include "NetMessage.h"
+#include "UserUtil.h"
 
-#define DEF_EVENT(EVENT_CLASS, _NAME) \
-	const EID EVENT_CLASS::ID = GlobalEvent::getNextAvailableID();\
-	const string EVENT_CLASS::NAME = _NAME;
+
+#define DEF_EVENT(EVENT,E_ID)									\
+	public:														\
+		inline EID id() {										\
+			return E_ID;										\
+		}														\
+		inline string name() {									\
+			return #EVENT;										\
+		}														\
 
 namespace Events {
-	class CamListUpdate : public GlobalEvent {
-		static EID ID;
-	public:
-		virtual EID id() {
-			return ID;
-		}
+	class CamListUpdate {
+		DEF_EVENT(CamListUpdate, 0)
+	}; 
 
-		virtual string name() {
-			return "CamListUpdate";
-		}
+	class UserLogin {
+		DEF_EVENT(UserLogin, 1)
+	public:
+		UserType type;
+		UserLogin(UserType _type) :type(_type) {}
 	};
 
+	class Warn {
+		DEF_EVENT(Warn, 2)
+	public:
+		typedef Message::WarnMsg msg;
+		msg warn;
+		Warn(msg _warn) :warn(_warn) {}
+	};
 }

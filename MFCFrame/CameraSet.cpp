@@ -7,8 +7,11 @@
 #include "SideBar.h"
 #include "locale.h"
 #include "MenuBarPanel.h"
+#include "Events.h"
+#include "NetHandler.h"
 
 using namespace Config;
+using namespace Cams;
 
 // CCameraSet 对话框
 
@@ -81,12 +84,12 @@ CamMode CCameraSet::getMode() {
 void CCameraSet::updateSel() {
 	timeCheck.EnableWindow(true);
 	timeCheck.SetCheck(true);
-	const auto &cam = getCamByIndex(m_CurrentCamIndex);
+	const auto &cam = getCamInfo()[m_CurrentCamIndex];
 	int start = 0, end = 0, modeSel = cam.mode;
-	const auto &dua = cam.timeSel;
 
 	m_CameraList.SetCurSel(m_CurrentCamIndex);
 	m_CameraModeList.SetCurSel(modeSel);
+	/*TODO: 
 	switch (modeSel) {
 	case CamMode::OnCross:
 	case CamMode::OnInvade:
@@ -108,9 +111,9 @@ void CCameraSet::updateSel() {
 		timeEnd.SetCurSel(end);
 	}
 	timeStart.EnableWindow(dua.timeing);
-	timeEnd.EnableWindow(dua.timeing);
+	timeEnd.EnableWindow(dua.timeing);*/
 }
-
+/*TODO: 
 void CCameraSet::updateEventListItem(int index, const CameraConfig& cam) {
 	CString ip(cam.url.c_str()), user(cam.cam_user.c_str()), dua;
 	m_EventList.SetItemText(index, 0, ip);
@@ -122,13 +125,12 @@ void CCameraSet::updateEventListItem(int index, const CameraConfig& cam) {
 		dua = _T("全天");
 	m_EventList.SetItemText(index, 3, dua);
 }
-
+*/
 // CCameraSet 消息处理程序
 BOOL CCameraSet::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 	//读取摄像头配置文件
-	helper.pullCamInfo();
 	
 	for (int i = 0; i < CamMode::TOTAL_NUM; i++) {
 		m_CameraModeList.AddString(getCamModeName(getMode(i)));
@@ -167,7 +169,7 @@ BOOL CCameraSet::OnInitDialog()
 		LV_ITEM item;
 		item.iItem = n;
 		item.mask = LVFIF_TEXT;
-		updateEventListItem(n, cam);
+		//updateEventListItem(n, cam);
 		n++;
 	}
 	return TRUE;  // return TRUE unless you set the focus to a control// 异常:  OCX 属性页应返回 FALSE
@@ -185,8 +187,7 @@ void CCameraSet::OnBnClickedOk()
 	CSideBar *pWnd = CSideBar::GetInstance();
 	if (pWnd == nullptr)
 		return;
-	helper.saveCamInfo();
-	//::SendMessage(pWnd->GetSafeHwnd(), CAM_LIST_UPDATE, 0, 0);
+	//helper.saveCamInfo();
 	CDialogEx::OnOK();
 }
 
@@ -215,50 +216,50 @@ void CCameraSet::OnLvnItemchangedEventList(NMHDR *pNMHDR, LRESULT *pResult)
 void CCameraSet::OnCbnSelchangeCameraMode()
 {
 	//更新摄像头工作模式
-	auto &cam = getCamByIndex(m_CurrentCamIndex);
+	auto &cam = getCamInfo()[m_CurrentCamIndex];
 	cam.mode = getMode();
 	cam.active = cam.mode != CamMode::Inactive;
 
 	updateSel();
-	updateEventListItem(m_CurrentCamIndex, cam);
+	//updateEventListItem(m_CurrentCamIndex, cam);
 }
 
 void CCameraSet::OnBnClickedCheck()
 {
 	bool check = timeCheck.GetCheck() == BST_CHECKED;
-	auto &cam = getCamByIndex(m_CurrentCamIndex);
-	cam.timeSel.timeing = check;
+	auto &cam = getCamInfo()[m_CurrentCamIndex];
+	//cam.timeSel.timeing = check;
 
 	timeStart.EnableWindow(check);
 	timeEnd.EnableWindow(check);
-	updateEventListItem(m_CurrentCamIndex, cam);
+	//updateEventListItem(m_CurrentCamIndex, cam);
 }
 
 void CCameraSet::OnCbnChangeTimeStart()
 {
-	auto &cam = getCamByIndex(m_CurrentCamIndex);
+	auto &cam = getCamInfo()[m_CurrentCamIndex];
 	int mode = m_CameraModeList.GetCurSel();
-	auto& dua = cam.timeSel;
+	//auto& dua = cam.timeSel;
 	CComboBox* pCombox = (CComboBox*)GetDlgItem(IDC_TIMESTART);
 	if (pCombox) {
 		int sel = pCombox->GetCurSel();
-		dua.start = sel;
+		//dua.start = sel;
 
-		updateEventListItem(m_CurrentCamIndex, cam);
+		//updateEventListItem(m_CurrentCamIndex, cam);
 	}
 }
 
 void CCameraSet::OnCbnSelchangeTimeEnd()
 {
-	auto &cam = getCamByIndex(m_CurrentCamIndex);
+	//auto &cam = getCamInfo()[m_CurrentCamIndex];
 	int mode = m_CameraModeList.GetCurSel();
-	auto& dua = cam.timeSel;
+	//auto& dua = cam.timeSel;
 	CComboBox* pCombox = (CComboBox*)GetDlgItem(IDC_TIMEEND);
 	if (pCombox) {
 		int sel = pCombox->GetCurSel();
-		dua.end = sel;
+		//dua.end = sel;
 
-		updateEventListItem(m_CurrentCamIndex, cam);
+		//updateEventListItem(m_CurrentCamIndex, cam);
 	}
 }
 
