@@ -151,13 +151,13 @@ void CModUser::OnBnClickedButton1()//确定
 	{
 		strvalue += 1;
 		m_passwordText = _T("超级管理员");
-		pWnd->InsertAlarm(strvalue, m_UsernameText, m_passwordText);
+		pWnd->InsertUser(strvalue, m_UsernameText, m_passwordText);
 	}
 	if (m_typedata == 1)
 	{
 		strvalue += 1;
 		m_passwordText = _T("普通用户");
-		pWnd->InsertAlarm(strvalue, m_UsernameText, m_passwordText);
+		pWnd->InsertUser(strvalue, m_UsernameText, m_passwordText);
 	}
 }
 

@@ -144,7 +144,7 @@ BOOL CUserManagement::OnCommand(WPARAM wParam, LPARAM lParam)
 	return CDialogEx::OnCommand(wParam, lParam);
 }
 
-void CUserManagement::InsertAlarm(int strvalue, CString strname, CString strtype)
+void CUserManagement::InsertUser(int strvalue, CString strname, CString strtype)
 {
 	CString str;
 	str.Format(_T("%d"), strvalue);

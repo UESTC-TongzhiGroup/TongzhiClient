@@ -36,5 +36,5 @@ private:
 	static CUserManagement * m_pThis;
 public:
 	static CUserManagement * GetInstance();
-	void InsertAlarm(int strvalue, CString strname, CString strtype);
+	void InsertUser(int strvalue, CString strname, CString strtype);
 };

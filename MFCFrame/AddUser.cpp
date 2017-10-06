@@ -5,7 +5,12 @@
 #include "Frame.h"
 #include "AddUser.h"
 #include"UserManagement.h"
+#include "NetMessage.h"
+#include "StrUtil.h"
+#include "UserUtil.h"
+#include "NetHandler.h"
 
+using namespace StrUtil;
 
 // CAddUser 对话框
 #define IDC_ABOUTTEXT   10000
@@ -45,6 +50,7 @@ BEGIN_MESSAGE_MAP(CAddUser, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_CREATE()
 	ON_CBN_SELCHANGE(IDC_COMBO1, &CAddUser::OnCbnSelchangeCombo1)
+	ON_BN_CLICKED(IDC_BUTTON1, &CAddUser::OnBnClickedButton1)
 	ON_BN_CLICKED(IDC_BUTTON2, &CAddUser::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
@@ -145,17 +151,33 @@ void CAddUser::OnBnClickedButton1()//确定
 	CUserManagement *pWnd = CUserManagement::GetInstance();
 	m_username.GetWindowTextW(m_UsernameText);
 	m_password.GetWindowTextW(m_passwordText);
+	UserType type;
 	if (m_typedata == 0)
 	{
+		type = UserType::Admin;
 		strvalue += 1;
 		m_passwordText =  _T("超级管理员");
-		pWnd->InsertAlarm(strvalue, m_UsernameText, m_passwordText);
+		pWnd->InsertUser(strvalue, m_UsernameText, m_passwordText);
 	}
 	if (m_typedata == 1)
 	{
+		type = UserType::User;
 		strvalue += 1;
 		m_passwordText = _T("普通用户");
-		pWnd->InsertAlarm(strvalue, m_UsernameText, m_passwordText);
+		pWnd->InsertUser(strvalue, m_UsernameText, m_passwordText);
+	}
+
+	Message::RegisterMsg msg{
+		CString2stdString(m_UsernameText),
+		CString2stdString(m_passwordText),
+		User::getTypeName(type)
+	};
+	auto reply = MsgHandler::sendReqMsg(msg);
+	if (reply.isSuccess()) {
+		//TODO: 
+	}
+	else {
+		//TODO: 
 	}
 }
 

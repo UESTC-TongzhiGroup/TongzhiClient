@@ -6,7 +6,6 @@ UserType User::getType(int t)
 	switch (t) {
 	case UserType::Admin:
 		return UserType::Admin;
-	//
 	case UserType::User:
 	default:
 		return UserType::User;
@@ -16,4 +15,15 @@ UserType User::getType(int t)
 UserType User::getTypeByStr(string str)
 {
 	return (str == "Admin") ? UserType::Admin : UserType::User;
+}
+
+string User::getTypeName(int t) {
+	switch (t) {
+	case UserType::Admin:
+		return "Admin";
+	case UserType::User:
+	default:
+		return "User";
+	}
+
 }

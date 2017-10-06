@@ -98,6 +98,10 @@ namespace Message {
 		string status;
 		string meta;
 		JSON_INTERFACE_DECL
+
+		inline bool isSuccess() {
+			return status == "success";
+		}
 	};
 
 	struct HeartBeat {
