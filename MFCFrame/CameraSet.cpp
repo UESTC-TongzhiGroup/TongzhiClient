@@ -139,12 +139,14 @@ BOOL CCameraSet::OnInitDialog()
 	CRect rect;
 	m_EventList.GetClientRect(&rect);
 
-	m_EventList.SetExtendedStyle(m_EventList.GetExtendedStyle() | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES );
-	int n = 0;
-	m_EventList.InsertColumn(n++, _T("IP地址"),			LVCFMT_CENTER, rect.Width() / 3);
-	m_EventList.InsertColumn(n++, _T("用户名"),			LVCFMT_CENTER, rect.Width() / 6);
-	m_EventList.InsertColumn(n++, _T("工作模式"),		LVCFMT_CENTER, rect.Width() / 6);
-	m_EventList.InsertColumn(n++, _T("检测时段"),		LVCFMT_CENTER, rect.Width() / 3);
+	m_EventList.SetExtendedStyle(m_EventList.GetExtendedStyle() | LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES | LVS_EX_CHECKBOXES );
+	int n = 0, width = rect.Width();
+	m_EventList.InsertColumn(n++, _T("关注"),			LVCFMT_CENTER, 25);
+	width -= 25;
+	m_EventList.InsertColumn(n++, _T("IP地址"),			LVCFMT_CENTER, width / 3);
+	m_EventList.InsertColumn(n++, _T("用户名"),			LVCFMT_CENTER, width / 6);
+	m_EventList.InsertColumn(n++, _T("工作模式"),		LVCFMT_CENTER, width / 6);
+	m_EventList.InsertColumn(n++, _T("检测时段"),		LVCFMT_CENTER, width / 3);
 
 	CString text;
 	// TODO:  在此添加摄像头项的初始化

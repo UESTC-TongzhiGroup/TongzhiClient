@@ -1,52 +1,57 @@
 #pragma once
 
-#define IMPL_OUT(TYPE)		inline ptree & operator<<(ptree &out,	TYPE &obj)
-#define PUT_OUT(field)		out.put(#field,obj.##field)
-#define IMPL_IN(TYPE)		inline ptree & operator>>(ptree &in ,	TYPE &obj)
-#define GET_IN(type,field)	obj.##field = in.get<type>(#field)
+#define IMPL_OUT(TYPE)			inline value & TYPE::toJsonObj(value &out)
+#define PUT_OUT(field)			out[#field] = field
+#define IMPL_IN(TYPE)			inline value & TYPE::fromJsonObj(value &in)
+#define GET_IN(jsonType,field)	field = in[#field].as##jsonType()
 
-template<int TYPE>
-ptree & operator<<(ptree &out, _ConnMsg<TYPE> &obj) {
+typedef bool Bool;
+typedef float Float;
+typedef double Double;
+typedef string String;
+
+template<UInt TYPE>
+IMPL_OUT(_ConnMsg<TYPE>) {
 	PUT_OUT(user);
 	PUT_OUT(password);
 	PUT_OUT(type);
 	return out;
 }
 
-template<int TYPE>
-ptree & operator>>(ptree &in, _ConnMsg<TYPE> &obj) {
-	GET_IN(string, user);
-	GET_IN(string, password);
-	GET_IN(string, type);
+template<UInt TYPE>
+IMPL_IN(_ConnMsg<TYPE>) {
+	GET_IN(String, user);
+	GET_IN(String, password);
+	GET_IN(String, type);
 	return in;
 }
 
-template<int TYPE>
-ptree & operator<<(ptree &out, _WrnLogMsg<TYPE> &obj) {
+template<UInt TYPE>
+IMPL_OUT(_WrnLogMsg<TYPE>) {
 	PUT_OUT(time);
 }
 
-template<int TYPE>
-ptree & operator>>(ptree &in, _WrnLogMsg<TYPE> &obj) {
-	GET_IN(string, time);
+template<UInt TYPE>
+IMPL_IN(_WrnLogMsg<TYPE>) {
+	GET_IN(String, time);
 }
 
-template<int TYPE>
-ptree & operator<<(ptree &out, _CamMsg<TYPE> &obj) {
+template<UInt TYPE>
+IMPL_OUT(_CamMsg<TYPE>) {
 	for (auto cam : obj.cams) {
-		ptree subt;
-		subt << cam;
-		out.push_back(std::make_pair("", subt));
+		value sub;
+		sub << cam;
+		out.append(subt);
 	}
 	return out;
 }
 
-template<int TYPE>
-ptree & operator>>(ptree &in, _CamMsg<TYPE> &obj) {
+template<UInt TYPE>
+IMPL_IN(_CamMsg<TYPE>) {
 	obj.cams.clear();
 	for (auto &itor : in) {
 		CamInfo cam;
-		itor.second >> cam;
+		itor >> cam;
 		obj.cams.push_back(cam);
 	}
 	return in;
@@ -64,11 +69,11 @@ namespace Message {
 	}
 
 	IMPL_IN(WarnMsg) {
-		GET_IN(string, time);
-		GET_IN(string, route);
-		GET_IN(string, cam_name);
-		GET_IN(string, warn_type);
-		GET_IN(string, producer);
+		GET_IN(String, time);
+		GET_IN(String, route);
+		GET_IN(String, cam_name);
+		GET_IN(String, warn_type);
+		GET_IN(String, producer);
 		return in;
 	}
 
@@ -79,8 +84,8 @@ namespace Message {
 	}
 
 	IMPL_IN(MsgReply) {
-		GET_IN(string, status);
-		GET_IN(string, meta);
+		GET_IN(String, status);
+		GET_IN(String, meta);
 		return in;
 	}
 
@@ -92,27 +97,42 @@ namespace Message {
 	}
 
 	IMPL_IN(AreaMsg) {
-		GET_IN(UINT, ID);
-		GET_IN(int, left_up);
-		GET_IN(int, right_down);
+		GET_IN(UInt, ID);
+		GET_IN(Int, left_up);
+		GET_IN(Int, right_down);
 		return in;
 	}
 
 	IMPL_OUT(WarnLogReply) {
-		for (auto wrn : obj.warn_log) {
-			ptree subt;
-			subt << wrn;
-			out.push_back(std::make_pair("", subt));
+		for (auto wrn : warn_log) {
+			value sub;
+			;
+			out.append(sub);
 		}
 		return out;
 	}
 
 	IMPL_IN(WarnLogReply) {
-		obj.warn_log.clear();
+		warn_log.clear();
 		for (auto &itor : in) {
 			WarnMsg wrn;
-			itor.second >> wrn;
-			obj.warn_log.push_back(wrn);
+			;
+			warn_log.push_back(wrn);
+		}
+		return in;
+	}
+
+	IMPL_OUT(DelCamMsg) {
+		for (auto id : list) {
+			out.append(id);
+		}
+		return out;
+	}
+
+	IMPL_IN(DelCamMsg) {
+		list.clear();
+		for (auto &itor : in) {
+			list.push_back(itor.asInt());
 		}
 		return in;
 	}

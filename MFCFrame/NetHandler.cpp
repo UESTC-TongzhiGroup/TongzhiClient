@@ -3,13 +3,8 @@
 #include <functional>
 #include <mutex>  
 #include <thread>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
 #include "NetHandler.h"
 #include "Events.h"
-
-
-using namespace boost::property_tree;
 
 using std::stringstream;
 
@@ -37,8 +32,8 @@ string getReadStr(sock_buf& buffer, size_t size) {
 	return s;
 }
 
-bool isWrnMsg(ptree pt) {
-	return CHECK_TYPE(pt) == ID_OF_MSG_TYPE(Message::WarnMsg);
+bool isWrnMsg(value root) {
+	return CHECK_TYPE(root) == ID_OF_MSG_TYPE(Message::WarnMsg);
 }
 
 enum { HEARTBEAT_INTERVAL = 2000 };
@@ -76,12 +71,13 @@ void MsgHandler::handleReadData(sock_buf& buf, err_code err, size_t bytes_transf
 		throw err;
 	string data = getReadStr(buf, bytes_transferred);
 
-	ptree pt;
-	read_json(stringstream(data), pt);
+	value root;
+	Json::Reader reader;
+	reader.parse(data, root);
 
-	if (isWrnMsg(pt)) {
+	if (isWrnMsg(root)) {
 		Message::WarnMsg wrn;
-		pt >> wrn;
+		wrn.fromJsonObj(root);
 		EventBus::dispatch(Events::Warn(wrn));
 	}
 	else {
@@ -98,7 +94,7 @@ void MsgHandler::handleReadData(sock_buf& buf, err_code err, size_t bytes_transf
 string MsgHandler::request(string req)
 {
 	auto &inst = get();
-	auto soc = inst.msg_sock;
+	auto &soc = inst.msg_sock;
 	soc->write_some(buffer(req + Message::SPLIT_SIGN));
 	return inst.responses.pop();
 }
@@ -120,7 +116,8 @@ void MsgHandler::start() {
 		std::thread heartBeat([&sock,&active]()->void {
 			while (active) {
 				try {
-					sock->write_some(buffer(getJson(Message::HeartBeat{}) + Message::SPLIT_SIGN));
+					string hbtext(getJson(Message::HeartBeat{}));
+					sock->write_some(buffer(hbtext + Message::SPLIT_SIGN));
 				}
 				catch (boost::system::system_error e) {
 					stop();

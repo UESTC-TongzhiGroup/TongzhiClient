@@ -2,7 +2,6 @@
 #include "afxwin.h"
 #include "afxcmn.h"
 #include "Resource.h"
-//TODO: #include "DBUtil.h"
 #include "Config.h"
 
 // CCameraSet ¶Ô»°¿ò

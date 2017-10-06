@@ -1,14 +1,13 @@
 #include "stdafx.h"
-
-#include <bsoncxx/builder/stream/document.hpp>
-#include <bsoncxx/json.hpp>
-
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
+#include <fstream>
+#include <json\json.h>
 
 #include "Config.h"
 
-using namespace boost::property_tree;
+typedef Json::Value value;
+using Json::Reader;
+using std::ifstream;
+using std::ofstream;
 
 ServerConfig serverInfo;
 
@@ -31,39 +30,48 @@ namespace Config {
 
 	void loadLicense() {
 		userLicense.clear();
-		ptree pt;
-		read_json<ptree>(LICENSE_PATH, pt);
-		for (auto child : pt.get_child("info")) {
-			ptree subt = child.second;
-			userLicense.insert(make_pair(subt.get<string>("user"), subt.get<string>("pass")));
+		value root;
+		Reader reader;
+		ifstream file(ifstream(LICENSE_PATH));
+		reader.parse(file, root);
+		for (auto &child : root["info"]) {
+			userLicense.insert(make_pair(child["user"].asString(), child["pass"].asString()));
 		}
+		file.close();
 	}
 
 	void loadServerCfg() {
-		ptree pt;
+		clearServerCfg();
 		auto& info = getServerInfo();
+		value root;
+		Reader reader;
 		try {
-			read_json<ptree>(SERVER_CONFIG_PATH, pt);
-			info.url = pt.get<string>("url");
-			info.reqport = pt.get<UINT16>("reqport");
+			ifstream file(ifstream(SERVER_CONFIG_PATH));
+			reader.parse(file, root);
+			info.url = root["url"].asString();
+			info.reqport = root["reqport"].asUInt();
 
-			info.loginUser = pt.get<string>("user");
-			info.loginPass = pt.get<string>("passwd");
+			info.loginUser = root["user"].asString();
+			info.loginPass = root["passwd"].asString();
 
 			getServerInfo().load = true;
 		}
-		catch (std::exception e) {}
+		catch (std::exception e) {
+			TRACE(e.what());
+		}
 	}
 
 	void saveServerCfg() {
-		ptree pt;
+		value root;
 		auto& info = Config::getServerInfo();
-		pt.put<string>("url", info.url);
-		pt.put<UINT16>("reqport", info.reqport);
+		root["url"] = info.url;
+		root["reqport"] = info.reqport;
 
-		pt.put<string>("user", info.loginUser);
-		pt.put<string>("passwd", info.loginPass);
-		write_json(SERVER_CONFIG_PATH, pt);
+		root["user"] = info.loginUser;
+		root["passwd"] = info.loginPass;
+		ofstream file(SERVER_CONFIG_PATH, ofstream::trunc);
+		file << root.toStyledString();
+		file.close();
 	}
 
 	void clearServerCfg()

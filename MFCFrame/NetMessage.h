@@ -2,47 +2,42 @@
 #include "stdafx.h"
 #include <string>
 #include <vector>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
+#include <json\json.h>
 #include "CamUtils.h"
 
-using namespace boost::property_tree;
 
 using std::string;
 
-typedef unsigned int UINT;
+typedef Json::Value value;
 
-#define JSON_INTERFACE_DECL(type)											\
-friend ptree & operator<<(ptree&,	type &);								\
-friend ptree & operator>>(ptree&,	type &);
+using namespace Json;
 
-#define NO_JSON_NEED(type)													\
-inline friend ptree & operator<<(ptree &out,	type &){ return out;}		\
-inline friend ptree & operator>>(ptree &in,		type &){ return	in;	}	
+#define JSON_INTERFACE_DECL										\
+value & toJsonObj(value&);										\
+value & fromJsonObj(value&);
 
-template<int TYPE>
+#define NO_JSON_NEED											\
+inline value & toJsonObj(value &out)	{ return	out;}		\
+inline value & fromJsonObj(value &in)	{ return	in;	}	
+
+template<UInt TYPE>
 struct _CamMsg {
 	std::vector<CamInfo> cams;
-	template<int T>
-	friend ptree & operator<<(ptree&, _CamMsg<T> &);
-	template<int T>
-	friend ptree & operator>>(ptree&, _CamMsg<T> &);
+	JSON_INTERFACE_DECL
 };
 
-template<int TYPE>
+template<UInt TYPE>
 struct _ConnMsg {
 	string user;
 	string password;
 	string type;
-	template<int T>
-	friend ptree & operator<<(ptree&, _ConnMsg<T> &);
-	template<int T>
-	friend ptree & operator>>(ptree&, _ConnMsg<T> &);
+	JSON_INTERFACE_DECL
 };
 
-template<int TYPE>
+template<UInt TYPE>
 struct _WrnLogMsg {
 	string time;
+	JSON_INTERFACE_DECL
 };
 
 namespace Message {
@@ -58,11 +53,14 @@ namespace Message {
 
 	typedef _CamMsg<1> AddCamMsg;
 	typedef _CamMsg<2> ModifyCamMsg;
-	typedef _CamMsg<3> DelCamMsg;
-	typedef _CamMsg<4> FocusCamMsg;
+
+	struct DelCamMsg {
+		std::vector<int> list;
+		JSON_INTERFACE_DECL
+	};
 
 	struct GetCamListMsg{
-		NO_JSON_NEED(GetCamListMsg)
+		NO_JSON_NEED
 	};
 
 	
@@ -76,7 +74,7 @@ namespace Message {
 		string cam_name;
 		string warn_type;
 		string producer;
-		JSON_INTERFACE_DECL(WarnMsg)
+		JSON_INTERFACE_DECL
 	};
 
 	typedef _WrnLogMsg<0> GetWarnLogMsg;
@@ -84,7 +82,7 @@ namespace Message {
 
 	struct WarnLogReply{
 		std::vector<WarnMsg> warn_log;
-		JSON_INTERFACE_DECL(WarnLogReply)
+		JSON_INTERFACE_DECL
 	};
 
 
@@ -92,19 +90,19 @@ namespace Message {
 		UINT ID;
 		int left_up;
 		int right_down;
-		JSON_INTERFACE_DECL(AreaMsg)
+		JSON_INTERFACE_DECL
 	};
 
 
 	struct MsgReply{
 		string status;
 		string meta;
-		JSON_INTERFACE_DECL(MsgReply)
+		JSON_INTERFACE_DECL
 	};
 
 	struct HeartBeat {
 		string status = "alive";
-		friend ptree & operator<<(ptree&, HeartBeat &);
+		value & toJsonObj(value&);
 	};
 
 	/**
@@ -135,7 +133,7 @@ struct Reply;
 
 #define REG_MSG_TYPE(type, n) \
 	template<>\
-	struct Type2ID<type> { const static UINT ID=n; }; \
+	struct Type2ID<type> { const static UInt ID=n; }; \
 //	template<>\
 //	struct ID2Type<n> { typedef type type_t; };
 
@@ -165,7 +163,6 @@ REG_MSG_REPLY_DEFAULT(Message::AreaMsg, 9);
 
 REG_MSG_TYPE(Message::MsgReply, 10);
 
-REG_MSG_REPLY_DEFAULT(Message::FocusCamMsg, 11);
 REG_MSG_REPLY_DEFAULT(Message::DelWarnLogMsg, 12);
 
 /**

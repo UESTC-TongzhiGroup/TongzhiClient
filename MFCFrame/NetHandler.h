@@ -1,8 +1,9 @@
 #pragma once
 #include "NetMessage.h"
-#include <boost/asio.hpp>
-#include <boost/asio/streambuf.hpp>
-#include <boost/system/error_code.hpp>
+#include <boost\asio.hpp>
+#include <boost\asio\streambuf.hpp>
+#include <boost\system\error_code.hpp>
+#include <json\json.h>
 #include <condition_variable>
 #include <queue>
 
@@ -14,7 +15,7 @@ typedef boost::shared_ptr<ip::tcp::socket> socket_ptr;
 typedef boost::asio::streambuf sock_buf;
 typedef boost::system::error_code err_code;
 
-#define CHECK_TYPE(Ptree) Ptree.get<int>("msg_type")
+#define CHECK_TYPE(root) root["msg_type"].asInt()
 
 class MsgHandler
 {
@@ -22,7 +23,6 @@ protected:
 	void handleReadData(sock_buf&, err_code, size_t);
 	MsgHandler();
 	bool active;
-	socket_ptr msg_sock;
 private:
 	class BlockMsgQueue{
 		queue<string> que;
@@ -33,6 +33,7 @@ private:
 		void push(string);
 	} responses;
 	io_service service;
+	socket_ptr msg_sock;
 	static MsgHandler& get();
 public:
 	static string request(string);
@@ -41,26 +42,25 @@ public:
 
 	template<typename MSG>
 	static string getJson(MSG msg) {
-		ptree pt, sub;
-		pt.put("msg_type", ID_OF_MSG_TYPE(MSG));
-		sub << msg_data;
-		pt.put_child("content", sub);
-		stringstream ss;
-		write_json(ss, pt, false);
+		Json::Value root;
+		root["msg_type"] = ID_OF_MSG_TYPE(MSG);
+		auto &sub = root["content"];
+		msg.toJsonObj(sub);
 
-		return ss.str();
+		return root.toStyledString();
 	}
 
 
 	template<typename MSG>
-	static auto sendReqMsg(MSG msg_data){
+	static auto sendReqMsg(const MSG & msg_data){
 		typedef REPLY_OF_MSG(MSG) Reply_t;
-		string response(getJson(msg_data));
-		ptree pt;
-		read_json(stringstream(response), pt);
-		BOOST_ASSERT(CHECK_TYPE(pt) == ID_OF_MSG_TYPE(Reply_t));
+		string response(request(getJson(msg_data)));
+		Json::Reader reader;
+		Json::Value root;
+		reader.parse(response, root);
+		BOOST_ASSERT(CHECK_TYPE(root) == ID_OF_MSG_TYPE(Reply_t));
 		Reply_t reply;
-		pt.get_child("content") >> reply;
+		reply.fromJsonObj(root["content"]);
 		return reply;
 	}
 };

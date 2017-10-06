@@ -115,13 +115,15 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>E:\C_Lib\opencv-build\install\include\opencv2;E:\C_Lib\opencv-build\install\include\opencv;E:\C_Lib\opencv-build\install\include;E:\C_Lib\mongo-c-driver\include\libmongoc-1.0;E:\C_Lib\mongo-c-driver\include\libbson-1.0;E:\C_Lib\boost_1_64_0;E:\C_Lib\mongo-cxx-driver\include\mongocxx\v_noabi;E:\C_Lib\mongo-cxx-driver\include\bsoncxx\v_noabi;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\C_Lib\jsoncpp-1.8.3\include;E:\C_Lib\opencv-build\install\include\opencv2;E:\C_Lib\opencv-build\install\include\opencv;E:\C_Lib\opencv-build\install\include;E:\C_Lib\mongo-c-driver\include\libmongoc-1.0;E:\C_Lib\mongo-c-driver\include\libbson-1.0;E:\C_Lib\boost_1_64_0;E:\C_Lib\mongo-cxx-driver\include\mongocxx\v_noabi;E:\C_Lib\mongo-cxx-driver\include\bsoncxx\v_noabi;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>E:\C_Lib\opencv-build\install\x64\vc15\lib;E:\C_Lib\boost_1_64_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libboost_system-vc141-mt-gd-1_64.lib;libboost_date_time-vc141-mt-gd-1_64.lib;libboost_regex-vc141-mt-gd-1_64.lib;opencv_calib3d320d.lib;opencv_core320d.lib;opencv_features2d320d.lib;opencv_flann320d.lib;opencv_highgui320d.lib;opencv_imgcodecs320d.lib;opencv_imgproc320d.lib;opencv_ml320d.lib;opencv_objdetect320d.lib;opencv_photo320d.lib;opencv_shape320d.lib;opencv_stitching320d.lib;opencv_superres320d.lib;opencv_video320d.lib;opencv_videoio320d.lib;opencv_videostab320d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\C_Lib\jsoncpp-1.8.3\build\vs141\debug\lib_json;E:\C_Lib\opencv-build\install\x64\vc15\lib;E:\C_Lib\boost_1_64_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>json_vc141.lib;libboost_system-vc141-mt-gd-1_64.lib;libboost_date_time-vc141-mt-gd-1_64.lib;libboost_regex-vc141-mt-gd-1_64.lib;opencv_calib3d320d.lib;opencv_core320d.lib;opencv_features2d320d.lib;opencv_flann320d.lib;opencv_highgui320d.lib;opencv_imgcodecs320d.lib;opencv_imgproc320d.lib;opencv_ml320d.lib;opencv_objdetect320d.lib;opencv_photo320d.lib;opencv_shape320d.lib;opencv_stitching320d.lib;opencv_superres320d.lib;opencv_video320d.lib;opencv_videoio320d.lib;opencv_videostab320d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
