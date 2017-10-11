@@ -99,14 +99,15 @@ void CServerSet::OnBnClickedOk()
 	string userType = notAdmin ? "User" : "Admin";
 	Message::LoginMsg msg{ serverInfo.loginUser,serverInfo.loginPass,userType };
 	try {
+		MsgHandler::stop();
 		auto reply = MsgHandler::sendReqMsg<Message::LoginMsg>(msg);
-		//SendMessage
+
 		if (reply.status == "success") {
 			Events::UserLogin e(User::getTypeByStr(userType));
 			EventBus::dispatch(e);
 			Config::saveServerCfg();
 
-			CServerSet::CloseWindow();
+			CDialogEx::OnOK();
 		}
 		else {
 			auto reason = StrUtil::stdString2CString(reply.meta);

@@ -6,10 +6,10 @@
 
 #define DEF_EVENT(EVENT,E_ID)									\
 	public:														\
-		inline EID id() {										\
+		inline static EID id() {										\
 			return E_ID;										\
 		}														\
-		inline string name() {									\
+		inline static string name() {									\
 			return #EVENT;										\
 		}														\
 

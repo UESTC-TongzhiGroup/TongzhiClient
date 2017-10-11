@@ -4,6 +4,8 @@
 #include "stdafx.h"
 #include "Frame.h"
 #include "AlarmLog.h"
+#include "EventBus.h"
+#include "Events.h"
 
 #define IDC_ALARMLOGLIST 10000
 #define IDC_ALARMCOUNT 10001
@@ -85,11 +87,28 @@ BEGIN_MESSAGE_MAP(CAlarmLog, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_SIZE()
 	ON_WM_CREATE()
+	ON_MESSAGE(GLOBAL_EVENT, &CAlarmLog::OnWarnMsg)
 END_MESSAGE_MAP()
 
 
 // CAlarmLog 消息处理程序
 
+#define str2Cstr StrUtil::stdString2CString
+LRESULT CAlarmLog::OnWarnMsg(WPARAM EID, LPARAM _event) {
+	CString str;
+	auto event_ptr = reinterpret_cast<Events::Warn*>(_event);
+	const auto &warn = event_ptr->warn;
+	int index = m_AlarmLogList.GetItemCount();
+	str.Format(L"%d", index + 1);
+	m_AlarmLogList.InsertItem(index, str);
+	m_AlarmLogList.SetItemText(index, 1, str2Cstr(warn.time));
+	m_AlarmLogList.SetItemText(index, 2, str2Cstr(warn.route));
+	m_AlarmLogList.SetItemText(index, 3, str2Cstr(warn.cameraName));
+	m_AlarmLogList.SetItemText(index, 4, str2Cstr(warn.context));
+	m_AlarmLogList.SetItemText(index, 5, str2Cstr(warn.producer));
+
+	return TRUE;
+}
 
 void CAlarmLog::OnPaint()
 {
@@ -225,6 +244,7 @@ void CAlarmLog::OnSize(UINT nType, int cx, int cy)
 
 int CAlarmLog::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
+	EventBus::regist(Events::Warn::id(), GetSafeHwnd());
 	if (CDialogEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 

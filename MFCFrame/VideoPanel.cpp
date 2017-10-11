@@ -365,10 +365,10 @@ BOOL CVideoPanel::OnCommand(WPARAM wParam, LPARAM lParam)
 	return CWnd::OnCommand(wParam, lParam);
 }
 
-void  CVideoPanel::OnVideoPlay(int m_VideoLabels)
+void  CVideoPanel::OnVideoPlay(int m_VideoLabels, int camIndex)
 {
 	if (m_VideoLabels != -1)
-		m_VideoWindow.pDlgVideo[m_VideoLabels].onVideoPlay();
+		m_VideoWindow.pDlgVideo[m_VideoLabels].onVideoPlay(camIndex);
 }
 
 void CVideoPanel::OnVideoStop(int m_VideoLabels)

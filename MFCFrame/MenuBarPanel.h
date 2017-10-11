@@ -39,7 +39,8 @@ public:
 	~CMenuBarPanel(void);
 	DECLARE_MESSAGE_MAP()
 protected:
-	afx_msg void OnPaint();
+	void OnPaint();
+	afx_msg LRESULT OnUserLogin(WPARAM, LPARAM);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);

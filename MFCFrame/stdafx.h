@@ -53,7 +53,6 @@ extern BOOL m_DblClk;
 extern int nSplitWindow;
 extern int m_VideoLabels;
 extern int m_SelectedPanel;
-extern INT warningroute;
 extern BOOL warning;
 
 #define TREE_UI_EVENT(CTRL_ID) (WM_USER+CTRL_ID)

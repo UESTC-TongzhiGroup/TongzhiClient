@@ -34,10 +34,9 @@ private:
 	} responses;
 	io_service service;
 	socket_ptr msg_sock;
-	static MsgHandler& get();
+	static MsgHandler& get(bool);
 public:
 	static string request(string);
-	static void start();
 	static void stop();
 
 	template<typename MSG>
@@ -46,8 +45,10 @@ public:
 		root["msg_type"] = ID_OF_MSG_TYPE(MSG);
 		auto &sub = root["content"];
 		msg.toJsonObj(sub);
-
-		return root.toStyledString();
+		if(sub.type()==Json::nullValue)
+			sub = Json::Value(Json::objectValue);
+		Json::FastWriter wr;
+		return wr.write(root);
 	}
 
 

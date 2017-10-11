@@ -9,6 +9,5 @@ INT M_TabLabels = 0;
 BOOL m_DblClk = FALSE;
 int nSplitWindow = 4;
 int m_VideoLabels = -1;
-INT warningroute = -1;
 BOOL warning = FALSE;
 int m_SelectedPanel;

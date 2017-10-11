@@ -6,10 +6,9 @@
 #include "DlgPanel.h"
 #include "CvvImage.h"
 #include "resource.h"
-
+#include <thread>
 #include "Config.h"
 #include "StrUtil.h"
-//#include "DBUtil.h"
 
 // CDlgPanel 对话框
 
@@ -176,10 +175,12 @@ void CDlgPanel::drawPicToHDC(IplImage *img, UINT ID)
 	ReleaseDC(pDC);
 }
 
-void CDlgPanel::onVideoPlay()
+void CDlgPanel::onVideoPlay(int index)
 {
-	status[m_index] = true;
-	AfxBeginThread(taskVideo, this);
+	if(!status[m_index]){
+		std::thread play(taskVideo, this, index);
+		play.detach();
+	}
 }
 
 void CDlgPanel::onVideoShutdown()
@@ -187,22 +188,21 @@ void CDlgPanel::onVideoShutdown()
 	status[m_index] = false;
 }
 
-UINT taskVideo(LPVOID param)
+UINT taskVideo(LPVOID ptr_param, int cam_idx)
 {
-	CDlgPanel * pTaskMain = (CDlgPanel *)param;
+	CDlgPanel * pTaskMain = (CDlgPanel *)ptr_param;
 
 	int pad = CDlgPanel::padding;
 
 	int &sel = pTaskMain->m_index;
 	auto &status = pTaskMain->status[sel];
-	std::string videoPath = Cams::getCamInfo()[sel].getFullURL();
+	std::string videoPath = Cams::getCamInfo()[cam_idx].getFullURL();
 	cv::VideoCapture cap;
-	TRACE(videoPath.c_str());
-	TRACE("\n");
-	cap.open(videoPath);
-
-	if (cap.isOpened())
+	TRACE(_T("%s\n"), StrUtil::stdString2CString(videoPath));
+	//string test_video = "E:\\BLAME.mp4";
+	if (cap.open(videoPath))
 	{
+		status = true;
 		cv::Mat frame;
 		IplImage* pFrame = nullptr;
 		CvFont font;
@@ -210,7 +210,7 @@ UINT taskVideo(LPVOID param)
 		while (1)
 		{
 			cap >> frame;
-			if (!frame.empty())
+			if(!frame.empty())
 			{
 				//绘制监视区域
 				if (pTaskMain->needDrawArea){
@@ -222,17 +222,12 @@ UINT taskVideo(LPVOID param)
 					status = false;
 					break;
 				}
-				if (warningroute == 0)
-				{
-					//TODO: 绘制图像位置坐标
-					cvRectangle(pFrame, cvPoint(pad, pad), cvPoint(frame.cols-pad, frame.rows-pad), cvScalar(0, 0, 255), 5, 3, 0);
-				}
+
+				//TODO: 报警高亮红框
+				//cvRectangle(pFrame, cvPoint(pad, pad), cvPoint(frame.cols - pad, frame.rows - pad), cvScalar(0, 0, 255), 5, 3, 0);
 				
 				//TODO: 绘制文字的位置
 				cvPutText(pFrame, StrUtil::format("%02d",sel).c_str(), cvPoint(1200, 65), &font, CV_RGB(255, 255, 255));
-				//pTaskMain->widthRatio = double((frame.cols) /(pTaskMain->rcCtrl.Width()));
-				//pTaskMain->heightRatio = double((frame.rows) /(pTaskMain->rcCtrl.Height()));
-				
 				pTaskMain->drawPicToHDC(pFrame, IDC_ShowVideo);
 				//每次响应在33ms内的按键输入
 				char c = cvWaitKey(33);

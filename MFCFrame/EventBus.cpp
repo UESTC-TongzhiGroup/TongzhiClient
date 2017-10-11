@@ -15,7 +15,7 @@ void EventBus::dispatch(WPARAM wParam, LPARAM lParam)
 {
 	for (auto itor = handlerSet.begin(); itor != handlerSet.end(); itor++) {
 		HWND handle = *itor;
-		::PostMessage(handle, GLOBAL_EVENT, wParam, lParam);
+		::SendMessage(handle, GLOBAL_EVENT, wParam, lParam);
 	}
 }
 

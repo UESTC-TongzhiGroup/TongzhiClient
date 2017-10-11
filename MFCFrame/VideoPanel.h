@@ -70,7 +70,7 @@ protected:
 public:
 	void Update();
 	VIDEO_NODE_T m_VideoWindow;		//ÊÓÆµ´°¿Ú
-	void OnVideoPlay(int);
+	void OnVideoPlay(int,int);
 	void OnVideoStop(int);
 	static CVideoPanel* GetInstance();
 private:

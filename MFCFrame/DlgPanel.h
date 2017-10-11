@@ -41,14 +41,14 @@ public:
 	void setSelected(BOOL bIsSelected);
 	static CDlgPanel * GetInstance();
 
-	void onVideoPlay();
+	void onVideoPlay(int);
 	void onVideoShutdown();
 	void drawPicToHDC(IplImage *img, UINT ID);
 
 	static bool isPlaying(int);
 
 	static void initAllStatus(int);
-	friend UINT taskVideo(LPVOID param);
+	friend UINT taskVideo(LPVOID, int);
 private:
 	BOOL m_bIsPressed;
 	static CDlgPanel * m_pThis;

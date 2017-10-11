@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include <string>
 #include <vector>
+#include <set>
 #include <json\json.h>
 #include "CamUtils.h"
 
@@ -9,20 +10,19 @@
 using std::string;
 
 typedef Json::Value value;
-
-using namespace Json;
+typedef unsigned int UInt;
 
 #define JSON_INTERFACE_DECL										\
-value & toJsonObj(value&);										\
-value & fromJsonObj(value&);
+void toJsonObj(value&);											\
+void fromJsonObj(value&);
 
 #define NO_JSON_NEED											\
-inline value & toJsonObj(value &out)	{ return	out;}		\
-inline value & fromJsonObj(value &in)	{ return	in;	}	
+inline void toJsonObj(value &out)	{}							\
+inline void fromJsonObj(value &in)	{}	
 
 template<UInt TYPE>
 struct _CamMsg {
-	std::vector<CamInfo> cams;
+	std::set<CamInfo> list;
 	JSON_INTERFACE_DECL
 };
 
@@ -31,12 +31,6 @@ struct _ConnMsg {
 	string user;
 	string password;
 	string type;
-	JSON_INTERFACE_DECL
-};
-
-template<UInt TYPE>
-struct _WrnLogMsg {
-	string time;
 	JSON_INTERFACE_DECL
 };
 
@@ -54,14 +48,24 @@ namespace Message {
 	typedef _CamMsg<1> AddCamMsg;
 	typedef _CamMsg<2> ModifyCamMsg;
 
-	struct DelCamMsg {
-		std::vector<int> list;
+	typedef struct {
+		ModifyCamMsg msg;
+		string meta;
+	}GetCamListReply;
+
+	typedef struct {
+		std::set<string> list;
 		JSON_INTERFACE_DECL
-	};
+	} DelCamMsg;
 
 	struct GetCamListMsg{
 		NO_JSON_NEED
 	};
+
+	typedef struct {
+		std::set<string> list;
+		JSON_INTERFACE_DECL
+	} FocusCamMsg;
 
 	
 	typedef _ConnMsg<1> LoginMsg;
@@ -71,17 +75,27 @@ namespace Message {
 	struct WarnMsg{
 		string time;
 		string route;
-		string cam_name;
-		string warn_type;
+		string cameraName;
+		string context;
 		string producer;
 		JSON_INTERFACE_DECL
 	};
 
-	typedef _WrnLogMsg<0> GetWarnLogMsg;
-	typedef _WrnLogMsg<1> DelWarnLogMsg;
+	typedef struct {
+		string time;
+		string meta;
+		JSON_INTERFACE_DECL
+	}GetWarnLogMsg;
+
+	typedef struct {
+		std::set<string> list;
+		string meta;
+		JSON_INTERFACE_DECL
+	}DelWarnLogMsg;
 
 	struct WarnLogReply{
-		std::vector<WarnMsg> warn_log;
+		std::vector<WarnMsg> list;
+		string meta;
 		JSON_INTERFACE_DECL
 	};
 
@@ -106,7 +120,7 @@ namespace Message {
 
 	struct HeartBeat {
 		string status = "alive";
-		value & toJsonObj(value&);
+		void toJsonObj(value&);
 	};
 
 	/**
@@ -114,7 +128,6 @@ namespace Message {
 	* Block end
 	*/
 }
-
 #include "JsonInterface.h"
 
 /**
@@ -137,7 +150,7 @@ struct Reply;
 
 #define REG_MSG_TYPE(type, n) \
 	template<>\
-	struct Type2ID<type> { const static UInt ID=n; }; \
+	struct Type2ID<type> { const static Int ID=n; }; \
 //	template<>\
 //	struct ID2Type<n> { typedef type type_t; };
 
@@ -152,6 +165,7 @@ REG_MSG_TYPE(Message::HeartBeat, -1);
 
 REG_MSG_REPLY_DEFAULT(Message::LoginMsg, 0);
 REG_MSG_REPLY_DEFAULT(Message::RegisterMsg, 1);
+
 REG_MSG_REPLY_DEFAULT(Message::AddCamMsg, 2);
 REG_MSG_REPLY_DEFAULT(Message::ModifyCamMsg, 3);
 REG_MSG_REPLY_DEFAULT(Message::DelCamMsg, 4);
@@ -167,7 +181,10 @@ REG_MSG_REPLY_DEFAULT(Message::AreaMsg, 9);
 
 REG_MSG_TYPE(Message::MsgReply, 10);
 
+REG_MSG_REPLY_DEFAULT(Message::FocusCamMsg, 11);
+
 REG_MSG_REPLY_DEFAULT(Message::DelWarnLogMsg, 12);
+
 
 /**
 * MsgType Registration

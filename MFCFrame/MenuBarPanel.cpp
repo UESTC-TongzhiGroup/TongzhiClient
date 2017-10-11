@@ -8,6 +8,8 @@
 #include "GlobalSetting.h"
 //#include "WarningPanel.h"
 #include "AlarmLog.h"
+#include "EventBus.h"
+#include "Events.h"
 using namespace  std;
 
 #include "mmsystem.h"
@@ -58,7 +60,14 @@ BEGIN_MESSAGE_MAP(CMenuBarPanel, CPanel)
 	ON_COMMAND(ID_CAMARE_SET, &CMenuBarPanel::OnCamareSet)
 	ON_COMMAND(ID_USER_MANUAL, &CMenuBarPanel::OnUserManual)
 	ON_COMMAND(ID_ABOUT, &CMenuBarPanel::OnAbout)
+	ON_MESSAGE(GLOBAL_EVENT, &CMenuBarPanel::OnUserLogin)
 END_MESSAGE_MAP()
+
+LRESULT CMenuBarPanel::OnUserLogin(WPARAM EID, LPARAM _event) {
+	CMenu* submenu = m_menu.GetSubMenu(3);
+	submenu->EnableMenuItem(ID_CAMARE_SET, MF_BYCOMMAND | MF_ENABLED);
+	return TRUE;
+}
 
 void CMenuBarPanel::OnPaint()
 {
@@ -88,6 +97,7 @@ CMenuBarPanel * CMenuBarPanel::m_pThis = NULL;
 
 int CMenuBarPanel::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
+	EventBus::regist(Events::UserLogin::id(), GetSafeHwnd());
 	if (CPanel::OnCreate(lpCreateStruct) == -1)
 		return -1;
 	if(m_imgMenuBar.IsNull())

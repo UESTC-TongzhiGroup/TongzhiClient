@@ -18,7 +18,8 @@ public:
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Ö§³Ö
 	DECLARE_MESSAGE_MAP()
-	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg LRESULT OnWarnMsg(WPARAM EID, LPARAM _event);
+	void OnSize(UINT nType, int cx, int cy);
 private:
 	
 	BOOL m_new;

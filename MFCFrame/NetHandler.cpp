@@ -36,7 +36,7 @@ bool isWrnMsg(value root) {
 	return CHECK_TYPE(root) == ID_OF_MSG_TYPE(Message::WarnMsg);
 }
 
-enum { HEARTBEAT_INTERVAL = 2000 };
+enum { HEARTBEAT_INTERVAL = 3000 };
 
 
 /**
@@ -60,9 +60,38 @@ MsgHandler::MsgHandler():
 	);
 }
 
-MsgHandler& MsgHandler::get() {
+#define NO_HEART_BEAT
+
+MsgHandler& MsgHandler::get(bool startNow = true) {
 	static MsgHandler inst;
-	start();
+	if (startNow && !inst.active) {
+		inst.active = true;
+		std::thread service([]()->void {
+			try {
+				io_service::work w(inst.service);
+				inst.service.run();
+			}
+			catch (...) {
+				stop();
+			}
+		});
+		service.detach();
+#ifndef NO_HEART_BEAT
+		std::thread heartBeat([]()->void {
+			while (inst.active) {
+				try {
+					string hbtext(getJson(Message::HeartBeat{}));
+					inst.msg_sock->write_some(buffer(hbtext + Message::SPLIT_SIGN));
+				}
+				catch (...) {
+					stop();
+				}
+				Sleep(HEARTBEAT_INTERVAL);
+			}
+		});
+		heartBeat.detach();
+#endif // HEART_BEAT
+	}
 	return inst;
 }
 
@@ -77,7 +106,7 @@ void MsgHandler::handleReadData(sock_buf& buf, err_code err, size_t bytes_transf
 
 	if (isWrnMsg(root)) {
 		Message::WarnMsg wrn;
-		wrn.fromJsonObj(root);
+		wrn.fromJsonObj(root["content"]);
 		EventBus::dispatch(Events::Warn(wrn));
 	}
 	else {
@@ -99,41 +128,12 @@ string MsgHandler::request(string req)
 	return inst.responses.pop();
 }
 
-void MsgHandler::start() {
-	auto & inst = get();
-	auto & sock = inst.msg_sock;
-	auto & active = inst.active;
-	if (!inst.active) {
-		inst.active = true;
-		std::thread service([&inst]()->void {
-			try {
-				inst.service.run();
-			}
-			catch (boost::system::system_error e) {
-				stop();
-			}
-		});
-		std::thread heartBeat([&sock,&active]()->void {
-			while (active) {
-				try {
-					string hbtext(getJson(Message::HeartBeat{}));
-					sock->write_some(buffer(hbtext + Message::SPLIT_SIGN));
-				}
-				catch (boost::system::system_error e) {
-					stop();
-				}
-				Sleep(HEARTBEAT_INTERVAL);
-			}
-		});
-		service.detach();
-		heartBeat.detach();
-	}
-}
-
 void MsgHandler::stop() {
-	auto &inst = get();
-	inst.service.stop();
+	auto &inst = get(false);
 	inst.active = false;
+	//inst.msg_sock->c
+	inst.service.stop();
+	inst.service.reset();
 }
 
 string MsgHandler::BlockMsgQueue::pop() {

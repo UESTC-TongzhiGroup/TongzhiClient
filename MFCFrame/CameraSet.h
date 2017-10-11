@@ -2,7 +2,8 @@
 #include "afxwin.h"
 #include "afxcmn.h"
 #include "Resource.h"
-#include "Config.h"
+#include "CamUtils.h"
+#include <set>
 
 // CCameraSet ¶Ô»°¿ò
 
@@ -23,9 +24,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 	void updateSel();
-	//void updateEventListItem(int, const CameraConfig&);
+	void updateCamItem(int, const CamInfo&);
 	virtual BOOL OnInitDialog();
-	CamMode getMode(int sel);
 	CamMode getMode();
 public:
 	static CCameraSet * GetInstance();
@@ -41,10 +41,12 @@ private:
 
 	static CCameraSet * m_pThis;
 	CamList tmpInfo;
+	std::set<CamInfo> change;
 	int m_CurrentCamIndex;
 	DWORD ip_addr;
 	CString userName;
 	CString passwd;
+	CString cam_address;
 public:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();

@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h";
+#include "StrUtil.h"
 #include <map>
 #include <set>
 
@@ -26,7 +27,8 @@ public:
 	template<typename GlobalEvent>
 	static void dispatch(GlobalEvent& _event)
 	{
-		TRACE("分发事件 %s", _event.name());
+		string event_name = _event.name();
+		TRACE(_T("分发事件 %s\n"), StrUtil::stdString2CString(event_name));
 		auto ptr = std::make_shared<GlobalEvent>(_event);
 		getEventBus(_event.id()).dispatch(
 			_event.id(),

@@ -79,8 +79,7 @@ void CSideBar::OnPaint()
 
 int CSideBar::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	CamListUpdate e;
-	EventBus::regist(e.id(), GetSafeHwnd());
+	EventBus::regist(CamListUpdate::id(), GetSafeHwnd());
 	if (CPanel::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
@@ -257,15 +256,15 @@ LRESULT CSideBar::OnCamTreeDoubleClk(WPARAM wPar, LPARAM lPar)
 		if (camIndex < 0 || camIndex >= Cams::getCamInfoNum())
 			return FALSE;
 		CVideoPanel *pWnd = CVideoPanel::GetInstance();
-			if (pWnd == NULL)
-				return FALSE;
-		if (CDlgPanel::isPlaying(camIndex))
+		if (pWnd == NULL)
+			return FALSE;
+		if (CDlgPanel::isPlaying(m_VideoLabels))
 		{
-			pWnd->OnVideoPlay(m_VideoLabels);
+			pWnd->OnVideoStop(m_VideoLabels);
 		}
 		else
 		{
-			pWnd->OnVideoStop(m_VideoLabels);
+			pWnd->OnVideoPlay(m_VideoLabels, camIndex);
 		}
 	}
 	 return TRUE;
