@@ -1,6 +1,7 @@
 #pragma once
 #include"resource.h"
 #include "DlgPanel.h"
+#include "CamUtils.h"
 #include <bitset>
 
 #define MAX_VIDEO_WND			1
@@ -70,8 +71,9 @@ protected:
 public:
 	void Update();
 	VIDEO_NODE_T m_VideoWindow;		//ÊÓÆµ´°¿Ú
-	void OnVideoPlay(int,int);
+	void OnVideoPlay(int,CamID);
 	void OnVideoStop(int);
+	bool isPlaying(int);
 	static CVideoPanel* GetInstance();
 private:
 	static CVideoPanel * m_pThis;

@@ -1,12 +1,14 @@
 #pragma once
 #include <string>
 #include <sstream>
-#include <vector>
+#include <map>
 #include <json/json.h>
 
 using std::string;
 
 typedef Json::Value value;
+
+typedef string CamID;
 
 typedef enum {
 	Inactive = 0,
@@ -19,15 +21,19 @@ typedef enum {
 } CamMode;
 
 struct CamInfo {
-	string ID;
+	CamID ID;
 	string name;
 	string url;
 	string cam_user;
 	string cam_password;
 	string time_start, time_end;
-	string mode_name;
 	CamMode mode;
+	string mode_name;
 	bool active;
+	CamInfo() = default;
+
+	CamInfo(CamID _ID, string _name, string _url,
+		string _user, string _password);
 
 	inline string getFullURL() {
 		std::stringstream ss;
@@ -41,8 +47,14 @@ struct CamInfo {
 	void toJsonObj(value&);
 	void fromJsonObj(value&);
 
+	inline void setFullDayTask() {
+		time_start = "0";
+		time_end = "0";
+	}
+
 	inline bool isTimed() const{
-		return time_start != "0" || time_end != "0";
+		return (time_start != "0" && time_start != "") ||
+			(time_end != "0" && time_end != "");
 	}
 
 	inline bool operator == (const CamInfo &rhs) const
@@ -56,7 +68,11 @@ struct CamInfo {
 	}
 };
 
-typedef std::vector<CamInfo> CamList;
+class CamList : public std::map<CamID, CamInfo> {
+public:
+	void addCam(const CamInfo& cam);
+	void operator+= (const CamInfo& cam);
+};
 
 namespace Cams {
 
@@ -93,10 +109,9 @@ namespace Cams {
 
 	inline CamMode getCamMode(int i) {
 		switch (i) {
-			RETURN_CASE(CamMode::Inactive)
-			RETURN_CASE(CamMode::OnCross)
 			RETURN_CASE(CamMode::OnFight)
 			RETURN_CASE(CamMode::OnInvade)
+			RETURN_CASE(CamMode::OnCross)
 			RETURN_CASE(CamMode::OnWander)
 		default:
 			return CamMode::Inactive;

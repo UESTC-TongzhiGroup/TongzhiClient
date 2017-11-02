@@ -1,13 +1,11 @@
 #pragma once
 #include "resource.h"
 #include "afxwin.h"
-#include "StrUtil.h"
+//#include "StrUtil.h"
 
 //TODO: #include "DBUtil.h"
 
 // CServerSet ¶Ô»°¿ò
-
-using namespace StrUtil;
 
 class CServerSet : public CDialogEx
 {

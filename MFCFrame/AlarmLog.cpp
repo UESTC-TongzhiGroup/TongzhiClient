@@ -93,7 +93,7 @@ END_MESSAGE_MAP()
 
 // CAlarmLog 消息处理程序
 
-#define str2Cstr StrUtil::stdString2CString
+#define str2Cstr StrUtil::std2CStr
 LRESULT CAlarmLog::OnWarnMsg(WPARAM EID, LPARAM _event) {
 	CString str;
 	auto event_ptr = reinterpret_cast<Events::Warn*>(_event);
@@ -244,7 +244,7 @@ void CAlarmLog::OnSize(UINT nType, int cx, int cy)
 
 int CAlarmLog::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	EventBus::regist(Events::Warn::id(), GetSafeHwnd());
+	EventBus::regist(Events::Warn::ID(), GetSafeHwnd());
 	if (CDialogEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 

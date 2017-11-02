@@ -9,6 +9,7 @@
 #include "MenuBarPanel.h"
 #include "Events.h"
 #include "NetHandler.h"
+#include "AddCam.h"
 
 using namespace Cams;
 using Cams::getCamMode;
@@ -19,8 +20,7 @@ IMPLEMENT_DYNAMIC(CCameraSet, CDialogEx)
 
 CCameraSet::CCameraSet(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CCameraSet::IDD, pParent)
-	, ip_addr(0)
-	, userName(_T(""))
+	, user_name(_T(""))
 	, passwd(_T(""))
 	, cam_address(_T(""))
 {
@@ -41,22 +41,33 @@ void CCameraSet::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TIMESTART, timeStart);
 	DDX_Control(pDX, IDC_TIMEEND, timeEnd);
 	DDX_Control(pDX, IDC_CHECK1, timeCheck);
-	DDX_IPAddress(pDX, IDC_IPADDRESS1, ip_addr);
-	DDX_Text(pDX, IDC_EDIT2, userName);
-	DDX_Text(pDX, IDC_EDIT4, passwd);
+	DDX_Text(pDX, IDC_USER_NAME, user_name);
+	DDX_Text(pDX, IDC_PASSWD, passwd);
 	DDX_Text(pDX, IDC_ADDRESS, cam_address);
 }
 
 
 BEGIN_MESSAGE_MAP(CCameraSet, CDialogEx)
+	ON_WM_CREATE()
+
 	ON_BN_CLICKED(IDOK, &CCameraSet::OnBnClickedOk)
 	ON_BN_CLICKED(IDCANCEL, &CCameraSet::OnBnClickedCancel)
+
 	ON_CBN_SELCHANGE(IDC_CAMERAL_LIST, &CCameraSet::OnCbnSelchangeCameralList)
-	ON_NOTIFY(LVN_ITEMCHANGED, IDC_EVENT_LIST, &CCameraSet::OnLvnItemchangedEventList)
 	ON_CBN_SELCHANGE(IDC_CAMERAMODE, &CCameraSet::OnCbnSelchangeCameraMode)
+
 	ON_BN_CLICKED(IDC_CHECK1, &CCameraSet::OnBnClickedCheck)
 	ON_CBN_SELCHANGE(IDC_TIMESTART, &CCameraSet::OnCbnChangeTimeStart)
 	ON_CBN_SELCHANGE(IDC_TIMEEND, &CCameraSet::OnCbnSelchangeTimeEnd)
+	ON_EN_CHANGE(IDC_ADDRESS, &CCameraSet::OnEnChange)
+	ON_EN_CHANGE(IDC_USER_NAME, &CCameraSet::OnEnChange)
+	ON_EN_CHANGE(IDC_PASSWD, &CCameraSet::OnEnChange)
+
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_EVENT_LIST, &CCameraSet::OnLvnItemchangedEventList)
+	ON_STN_CLICKED(IDC_ADD_CAM, &CCameraSet::OnStnClickedAddCam)
+
+	ON_MESSAGE(GLOBAL_EVENT, &CCameraSet::updateAllCam)
+	ON_BN_CLICKED(IDC_DEL_SELECTED_CAM, &CCameraSet::OnBnClickedDelSelectedCam)
 END_MESSAGE_MAP()
 
 CamMode CCameraSet::getMode() {
@@ -66,15 +77,17 @@ CamMode CCameraSet::getMode() {
 }
 
 void CCameraSet::updateSel() {
+	/*
+	TODO: 重写更新选中摄像头的逻辑
 	timeCheck.EnableWindow(true);
 	timeCheck.SetCheck(true);
 	const auto &cam = getCamInfo()[m_CurrentCamIndex];
 	int start = 0, end = 0, modeSel = cam.mode;
 	bool timed = cam.isTimed();
 
-	cam_address = StrUtil::stdString2CString(cam.url);
-	userName = StrUtil::stdString2CString(cam.cam_user);
-	passwd = StrUtil::stdString2CString(cam.cam_password);
+	cam_address = StrUtil::std2CStr(cam.url);
+	user_name = StrUtil::std2CStr(cam.cam_user);
+	passwd = StrUtil::std2CStr(cam.cam_password);
 	UpdateData(FALSE);
 
 	m_CameraList.SetCurSel(m_CurrentCamIndex);
@@ -100,11 +113,11 @@ void CCameraSet::updateSel() {
 		timeEnd.SetCurSel(end);
 	}
 	timeStart.EnableWindow(timed);
-	timeEnd.EnableWindow(timed);
+	timeEnd.EnableWindow(timed);*/
 }
 
 CString getCamModeName(int mode) {
-	return StrUtil::stdString2CString(Cams::ModeName_ZH[getCamMode(mode)]);
+	return StrUtil::std2CStr(Cams::ModeName_ZH[getCamMode(mode)]);
 }
 
 void CCameraSet::updateCamItem(int index, const CamInfo& cam) {
@@ -114,27 +127,60 @@ void CCameraSet::updateCamItem(int index, const CamInfo& cam) {
 	m_EventList.SetItemText(index, 3, getCamModeName(getCamMode(cam.mode)));
 	if (cam.isTimed())
 		dua.Format(_T("%s时 至 %s时"),
-			StrUtil::stdString2CString(cam.time_start),
-			StrUtil::stdString2CString(cam.time_end));
+			StrUtil::std2CStr(cam.time_start),
+			StrUtil::std2CStr(cam.time_end));
 	else
 		dua = _T("全天");
 	m_EventList.SetItemText(index, 4, dua);
-	auto itor = change.find(cam);
-	if (itor != change.end())
-		change.erase(itor);
-	change.insert(cam);
+	auto itor = cam_change.find(cam);
+	if (itor != cam_change.end())
+		cam_change.erase(itor);
+	cam_change.insert(cam);
+}
+
+LRESULT CCameraSet::updateAllCam(WPARAM, LPARAM) {
+	auto &camInfo = getCamInfo();
+	m_CameraList.Clear();
+	m_EventList.DeleteAllItems();
+	int i = 0;
+	for (auto &itor:getCamInfo()) {
+		const auto &cam = itor.second;
+		CString name(cam.ID.c_str());
+		m_CameraList.AddString(name);
+		m_EventList.InsertItem(i, name);
+		m_EventList.SetCheck(i, TRUE);
+		m_EventList.SetItemText(i, 1, StrUtil::std2CStr(cam.url));
+		m_EventList.SetItemText(i, 2, StrUtil::std2CStr(cam.cam_user));
+		m_EventList.SetItemText(i, 3, StrUtil::std2CStr(Cams::ModeName_ZH[cam.mode]));
+		CString time;
+		cam.isTimed() ?
+			time.Format(_T("%s时 至 %s时"),
+				StrUtil::std2CStr(cam.time_start),
+				StrUtil::std2CStr(cam.time_end)) :
+			time = "全天";
+		m_EventList.SetItemText(i, 4, time);
+		i++;
+	}
+	tmpInfo = camInfo;
+	return TRUE;
 }
 
 // CCameraSet 消息处理程序
+int CCameraSet::OnCreate(LPCREATESTRUCT lpCreateStruct) {
+	if (CDialogEx::OnCreate(lpCreateStruct) == -1)
+		return -1;
+	EventBus::regist(Events::CamListUpdate::ID(), GetSafeHwnd());
+	return 0;
+}
+
 BOOL CCameraSet::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 	//读取摄像头配置文件
-	
 	for (int i = 0; i < CamMode::TOTAL_NUM; i++) {
 		m_CameraModeList.AddString(getCamModeName(i));
 	}
-
+	
 	CRect rect;
 	m_EventList.GetClientRect(&rect);
 
@@ -151,9 +197,6 @@ BOOL CCameraSet::OnInitDialog()
 	m_EventList.InsertColumn(n++, _T("检测时段"),		LVCFMT_CENTER, width);
 
 	CString text;
-	m_CameraList.SetCurSel(0);
-	m_CameraModeList.SetCurSel(0);
-
 	for (int i = 0; i < 24; i++) {
 		text.Format(_T("%02d:00"), i);
 		timeStart.AddString(text);
@@ -173,27 +216,7 @@ BOOL CCameraSet::OnInitDialog()
 		catch (...) {
 			MessageBox(_T("连接失败: 地址错误或者服务端未开启"), _T("连接错误"));
 		}
-		tmpInfo.assign(camInfo.begin(), camInfo.end());
-		for (int i = 0; i < getCamInfoNum(); i++) {
-			const auto &cam = getCamInfo()[i];
-			text.Format(_T("%02d路摄像头"), i);
-			m_CameraList.AddString(text);
-			m_EventList.InsertItem(i, text);
-			m_EventList.SetItemText(i, 1, StrUtil::stdString2CString(cam.url));
-			m_EventList.SetItemText(i, 2, StrUtil::stdString2CString(cam.cam_user));
-			m_EventList.SetItemText(i, 3, StrUtil::stdString2CString(Cams::ModeName_ZH[cam.mode]));
-			CString time;
-			cam.isTimed() ?
-				time.Format(_T("%s时 至 %s时"),
-					StrUtil::stdString2CString(cam.time_start),
-					StrUtil::stdString2CString(cam.time_end)) :
-				time = "全天";
-			m_EventList.SetItemText(i, 4, time);
-
-			//LV_ITEM item;
-			//item.iItem = i;
-			//item.mask = LVFIF_TEXT;
-		}
+		tmpInfo = camInfo;
 	});
 	camPuller.detach();
 	return TRUE;  // return TRUE unless you set the focus to a control// 异常:  OCX 属性页应返回 FALSE
@@ -211,25 +234,39 @@ void CCameraSet::OnBnClickedOk()
 	if (pWnd == nullptr)
 		return;
 	//修改摄像头信息
-	Message::ModifyCamMsg msg{ change };
-	auto reply = MsgHandler::sendReqMsg(msg);
-	if (!reply.isSuccess()) {
-		MessageBox(StrUtil::stdString2CString(reply.meta), _T("错误"));
+	if (cam_change.size() > 0) {
+		Message::ModifyCamMsg msg{ cam_change };
+		auto reply = MsgHandler::sendReqMsg(msg);
+		if (!reply.isSuccess()) {
+			MessageBox(StrUtil::std2CStr(reply.meta), _T("错误"));
+		}
 	}
+
 	//处理关注的摄像头
 	std::set<string> id_set;
 	auto &cams = getCamInfo();
 	for (int i = 0; i < getCamInfoNum(); i++) {
 		if (m_EventList.GetCheck(i)) {
-			id_set.insert(cams[i].ID);
+			id_set.insert(cams[StrUtil::CStr2std(m_EventList.GetItemText(i,0))].ID);
 		}
 	}
-	Message::FocusCamMsg focus{ id_set };
-	//两个消息的reply是同种类型
-	reply = MsgHandler::sendReqMsg(focus);
-	if (!reply.isSuccess()) {
-		MessageBox(StrUtil::stdString2CString(reply.meta), _T("错误"));
+
+	if (id_set.size() > 0) {
+		Message::FocusCamMsg focus{ id_set };
+		auto reply = MsgHandler::sendReqMsg(focus);
+		if (!reply.isSuccess()) {
+			MessageBox(StrUtil::std2CStr(reply.meta), _T("错误"));
+		}
 	}
+
+	if (cam_delete.size() > 0) {
+		Message::DelCamMsg del{ cam_delete };
+		auto reply = MsgHandler::sendReqMsg(del);
+		if (!reply.isSuccess()) {
+			MessageBox(StrUtil::std2CStr(reply.meta), _T("错误"));
+		}
+	}
+
 	CDialogEx::OnOK();
 }
 
@@ -258,25 +295,32 @@ void CCameraSet::OnLvnItemchangedEventList(NMHDR *pNMHDR, LRESULT *pResult)
 void CCameraSet::OnCbnSelchangeCameraMode()
 {
 	//更新摄像头工作模式
+	/*重写
 	auto &cam = getCamInfo()[m_CurrentCamIndex];
 	cam.mode = getMode();
-	cam.active = cam.mode != CamMode::Inactive;
+	cam.mode_name = Cams::ModeName[cam.mode];
+	cam.active = (cam.mode != CamMode::Inactive);
 
 	updateSel();
-	updateCamItem(m_CurrentCamIndex, cam);
+	updateCamItem(m_CurrentCamIndex, cam);*/
 }
 
 void CCameraSet::OnBnClickedCheck()
 {
+	/*重写
 	bool check = timeCheck.GetCheck() == BST_CHECKED;
 	auto &cam = getCamInfo()[m_CurrentCamIndex];
-
+	if (!check) {
+		cam.setFullDayTask();
+		updateCamItem(m_CurrentCamIndex, cam);
+	}
 	timeStart.EnableWindow(check);
-	timeEnd.EnableWindow(check);
+	timeEnd.EnableWindow(check);*/
 }
 
 void CCameraSet::OnCbnChangeTimeStart()
 {
+	/*TODO: 重写
 	auto &cam = getCamInfo()[m_CurrentCamIndex];
 	int mode = m_CameraModeList.GetCurSel();
 	//auto& dua = cam.timeSel;
@@ -287,11 +331,12 @@ void CCameraSet::OnCbnChangeTimeStart()
 
 		updateCamItem(m_CurrentCamIndex, cam);
 		updateSel();
-	}
+	}*/
 }
 
 void CCameraSet::OnCbnSelchangeTimeEnd()
 {
+	/*TODO: 重写
 	auto &cam = getCamInfo()[m_CurrentCamIndex];
 	int mode = m_CameraModeList.GetCurSel();
 	CComboBox* pCombox = (CComboBox*)GetDlgItem(IDC_TIMEEND);
@@ -301,13 +346,47 @@ void CCameraSet::OnCbnSelchangeTimeEnd()
 
 		updateCamItem(m_CurrentCamIndex, cam);
 		updateSel();
-	}
+	}*/
 }
 
 void CCameraSet::OnBnClickedCancel()
 {
-	// TODO: 在此添加控件通知处理程序代码
 	auto &camInfo = getCamInfo();
 	camInfo.swap(tmpInfo);
 	CDialogEx::OnCancel();
+}
+
+void CCameraSet::OnEnChange()
+{
+	UpdateData();
+	/*TODO: 重写修改 文本框内文本更新 对应摄像头更新逻辑
+	auto &cam = getCamInfo()[m_CurrentCamIndex];
+	cam.url = StrUtil::CStr2std(cam_address);
+	cam.cam_user = StrUtil::CStr2std(user_name);
+	cam.cam_password = StrUtil::CStr2std(passwd);
+	updateCamItem(m_CurrentCamIndex, cam);*/
+}
+
+void CCameraSet::OnStnClickedAddCam()
+{
+	CAddCam addCam = new CAddCam();
+	addCam.DoModal();
+	delete addCam;
+}
+
+
+void CCameraSet::OnBnClickedDelSelectedCam()
+{
+	/*
+	TODO: 重写删除摄像头逻辑
+	int nItem = m_CurrentCamIndex;
+	cam_delete.emplace(StrUtil::CStr2std(m_EventList.GetItemText(nItem, 0)));
+	m_EventList.DeleteItem(nItem);
+	m_CameraList.DeleteString(nItem);
+	auto &cam = getCamInfo();
+	auto itor = cam_change.find(cam[nItem]);
+	if (itor != cam_change.end()) {
+		cam_change.erase(itor);
+	}
+	cam.erase(cam.begin() + nItem);*/
 }

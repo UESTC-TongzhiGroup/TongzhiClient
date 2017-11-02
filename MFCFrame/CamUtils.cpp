@@ -11,19 +11,34 @@ CamList camInfo;
 
 using namespace Cams;
 
+CamInfo::CamInfo(CamID _ID, string _name, string _url, string _user, string _password) :
+	url(_url),
+	ID(_ID),					name(_name),
+	cam_user(_user),			cam_password(_password),
+	mode(CamMode::Inactive),	mode_name(ModeName[mode]) {}
+
 CamList & Cams::getCamInfo()
 {
 	return camInfo;
 }
 
 void Cams::updateCamList() {
-	auto &camList = getCamInfo();
-	camList.clear();
+	camInfo.clear();
 	Message::GetCamListMsg msg;
 	auto reply = MsgHandler::sendReqMsg(msg);
+	for (const CamInfo& cam : reply.list) {
+		camInfo += cam;
+	}
 
-	std::copy(reply.list.begin(), reply.list.end(), std::back_inserter(camList));
 	EventBus::dispatch(Events::CamListUpdate());
+}
+
+void CamList::addCam(const CamInfo &cam) {
+	insert(std::make_pair(cam.ID, cam));
+}
+
+void CamList::operator+=(const CamInfo &cam) {
+	addCam(cam);
 }
 
 void CamInfo::toJsonObj(value& out) {

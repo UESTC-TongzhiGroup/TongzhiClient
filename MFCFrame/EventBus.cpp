@@ -19,17 +19,17 @@ void EventBus::dispatch(WPARAM wParam, LPARAM lParam)
 	}
 }
 
-EventBus& EventBus::getEventBus(EID id)
+EventBus& EventBus::getEventBus(EID ID)
 {
-	auto itor = BUS_MAP.find(id);
+	auto itor = BUS_MAP.find(ID);
 	if (itor == BUS_MAP.end()) {
-		return BUS_MAP.insert(std::make_pair(id, EventBus(id))).first->second;
+		return BUS_MAP.insert(std::make_pair(ID, EventBus(ID))).first->second;
 	}
 	return itor->second;
 }
 
-void EventBus::regist(EID id, HWND handle)
+void EventBus::regist(EID ID, HWND handle)
 {
-	getEventBus(id).regist(handle);
+	getEventBus(ID).regist(handle);
 }
 

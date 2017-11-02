@@ -79,9 +79,9 @@ void CSideBar::OnPaint()
 
 int CSideBar::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	EventBus::regist(CamListUpdate::id(), GetSafeHwnd());
 	if (CPanel::OnCreate(lpCreateStruct) == -1)
 		return -1;
+	EventBus::regist(CamListUpdate::ID(), GetSafeHwnd());
 
 	CRect rcClient;
 	GetClientRect(rcClient);
@@ -211,16 +211,15 @@ int CSideBar::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 LRESULT CSideBar::UpdateCamTree(WPARAM EID,LPARAM _event) {
 	auto e = reinterpret_cast<CamListUpdate*>(_event);
-	if (EID != e->id())
+	if (EID != e->ID())
 		return TRUE;
-
+	m_CamTreeCtrl.DeleteAllItems();
 	HTREEITEM hRoot = m_CamTreeCtrl.InsertItem(_T("摄像头组"));
-	for (int i = 0; i < Cams::getCamInfoNum(); i++)
+	for (auto itor : Cams::getCamInfo())
 	{
-		CString strItem;
-		strItem.Format(_T("%d路摄像头"), i + 1);
-		HTREEITEM hTreeItem = m_CamTreeCtrl.InsertItem(strItem, 0, 0, hRoot, TVI_LAST);
-		m_CamTreeCtrl.SetItemData(hTreeItem, i);
+		HTREEITEM hTreeItem = m_CamTreeCtrl.InsertItem(StrUtil::std2CStr(itor.first), 0, 0, hRoot, TVI_LAST);
+		//TODO: 不传递额外数据
+		m_CamTreeCtrl.SetItemData(hTreeItem, 0);
 		m_CamTreeCtrl.Expand(hRoot, TVE_EXPAND);
 	}
 	return TRUE;
@@ -252,19 +251,16 @@ LRESULT CSideBar::OnCamTreeDoubleClk(WPARAM wPar, LPARAM lPar)
 	if (pNMTreeView->itemOld.hItem)
 	{
 		HTREEITEM hItem = m_CamTreeCtrl.GetSelectedItem();
-		int camIndex = m_CamTreeCtrl.GetItemData(hItem);
-		if (camIndex < 0 || camIndex >= Cams::getCamInfoNum())
-			return FALSE;
 		CVideoPanel *pWnd = CVideoPanel::GetInstance();
 		if (pWnd == NULL)
 			return FALSE;
-		if (CDlgPanel::isPlaying(m_VideoLabels))
+		if (pWnd->isPlaying(m_VideoLabels))
 		{
 			pWnd->OnVideoStop(m_VideoLabels);
 		}
 		else
 		{
-			pWnd->OnVideoPlay(m_VideoLabels, camIndex);
+			pWnd->OnVideoPlay(m_VideoLabels, StrUtil::CStr2std(m_CamTreeCtrl.GetItemText(hItem)));
 		}
 	}
 	 return TRUE;

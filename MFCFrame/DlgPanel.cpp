@@ -1,29 +1,41 @@
-// DlgPanel.cpp : ÊµÏÖÎÄ¼þ
-//
-
 #include "stdafx.h"
-#include "Frame.h"
 #include "DlgPanel.h"
-#include "CvvImage.h"
-#include "resource.h"
-#include <thread>
-#include "Config.h"
+#include "NetHandler.h"
+#include "NetMessage.h"
 #include "StrUtil.h"
 
-// CDlgPanel ¶Ô»°¿ò
+#pragma comment(lib, "vfw32.lib")
+#pragma comment(lib, "comctl32.lib")
+#pragma comment(lib, "ippicvmt.lib")
+#pragma comment(lib, "zlibd.lib")
+#pragma comment(lib, "libjpegd.lib")
+#pragma comment(lib, "libpngd.lib")
+#pragma comment(lib, "libtiffd.lib")
+#pragma comment(lib, "libjasperd.lib")
+#pragma comment(lib, "libwebpd.lib")
+#pragma comment(lib, "IlmImfd.lib")
+#pragma comment(lib, cvLIB("world"))
+
+#include <cv.h>
+#include <opencv2\core\core.hpp>
+#include <opencv2\highgui\highgui.hpp>
+#include <opencv2\imgproc\imgproc.hpp>
 
 IMPLEMENT_DYNAMIC(CDlgPanel, CDialogEx)
 
-std::deque<bool> CDlgPanel::status;
+BEGIN_MESSAGE_MAP(CDlgPanel, CDialogEx)
+	ON_WM_PAINT()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONDBLCLK()
+	ON_WM_SIZE()
+	ON_WM_LBUTTONUP()
+	ON_WM_MOUSEMOVE()
+END_MESSAGE_MAP()
 
 CDlgPanel::CDlgPanel(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CDlgPanel::IDD, pParent)
+	: CDialogEx(CDlgPanel::IDD, pParent), videoDrawer(this)
 {
-	m_bIsPressed = FALSE;
-	//m_DblClk = FALSE;
-	m_pThis = this;
-
-	resizingArea = false;
+	focusArea = { 0,0,1,1 };
 }
 
 CDlgPanel::~CDlgPanel()
@@ -36,130 +48,172 @@ void CDlgPanel::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 }
 
+void CDlgPanel::SetCam(CamID ID) {
+	VideoStop();
+	cam_play = ID;
+}
 
-BEGIN_MESSAGE_MAP(CDlgPanel, CDialogEx)
-	ON_WM_PAINT()
-	ON_WM_LBUTTONDOWN()
-	ON_WM_LBUTTONDBLCLK()
-	ON_WM_SIZE()
-	ON_WM_LBUTTONUP()
-	ON_WM_MOUSEMOVE()
-END_MESSAGE_MAP()
-
-
-// CDlgPanel ÏûÏ¢´¦Àí³ÌÐò
-
-
-void CDlgPanel::OnPaint()
+void CDlgPanel::VideoPlay()
 {
-	CPaintDC dc(this); // device context for painting
-	CRect rcClient;
-	GetClientRect(rcClient);
-	dc.FillSolidRect(rcClient, RGB(125, 125, 125));
-	if (m_bIsPressed)
-	{
-		int width = 1;
-		CRect rcRight = rcClient;
-		rcRight.right = rcClient.left + width;
-		dc.FillSolidRect(rcRight, RGB(240, 248, 251));
-		CRect rcLeft = rcClient;
-		rcLeft.left = rcClient.right - width;
-		dc.FillSolidRect(rcLeft, RGB(240, 248, 251));
-		CRect rcTop = rcClient;
-		rcTop.bottom = rcClient.top + width;
-		dc.FillSolidRect(rcTop, RGB(240, 248, 251));
-		CRect rcBottom = rcClient;
-		rcBottom.top = rcClient.bottom - width;
-		dc.FillSolidRect(rcBottom, RGB(240, 248, 251));
+	ready = true;
+}
+
+void CDlgPanel::VideoStop()
+{
+	ready = false;
+}
+
+void CDlgPanel::VideoToggle()
+{
+	if (!ready) {
+		VideoPlay();
 	}
-}
-
-CDlgPanel * CDlgPanel::GetInstance()
-{
-	return m_pThis;
-}
-
-CDlgPanel * CDlgPanel::m_pThis = NULL;
-
-void CDlgPanel::OnLButtonUp(UINT nFlags, CPoint point)
-{
-	resizingArea = false;
-	CRect area;
-	area.SetRect(downPoint.x, downPoint.y, currentPoint.x, currentPoint.y);
-	area.NormalizeRect();
-	try {
-		//DBHelper helper;
-		//helper.updateCamArea(m_index, area);
-	}
-	catch (std::exception e) {
-#ifdef _DEBUG
-		TRACE(e.what());
-		TRACE("\n");
-#endif // _DEBUG
-	}
-	CDialogEx::OnLButtonUp(nFlags, point);
-}
-
-
-void CDlgPanel::OnMouseMove(UINT nFlags, CPoint point)
-{
-	if (resizingArea)
-	{
-		currentPoint.x = point.x;
-		currentPoint.y = point.y;
-		Invalidate();
-	}
-	CDialogEx::OnMouseMove(nFlags, point);
-}
-
-void CDlgPanel::OnLButtonDown(UINT nFlags, CPoint point)
-{
-	resizingArea = true;
-	needDrawArea = true;
-	//¼ÇÂ¼Æðµã
-	CRect rcClient;
-	GetClientRect(rcClient);
-	downPoint.x = point.x;
-	downPoint.y = point.y;
-
-	setSelected(TRUE);
-	CWnd * pWndParent = GetParent();
-	ASSERT(pWndParent);
-	WORD wID = GetDlgCtrlID();
-	pWndParent->SendMessage(WM_COMMAND, MAKEWPARAM(wID, BN_CLICKED), (LPARAM)m_hWnd);
-	CDialogEx::OnLButtonDown(nFlags, point);
-}
-
-void CDlgPanel::OnLButtonDblClk(UINT nFlags, CPoint point)
-{
-	//m_DblClk = !m_DblClk;
-	CWnd * pWndParent = GetParent();
-	ASSERT(pWndParent);
-	WORD wID = GetDlgCtrlID();
-	pWndParent->SendMessage(WM_COMMAND, MAKEWPARAM(wID, BN_DOUBLECLICKED), (LPARAM)m_hWnd);
-	CDialogEx::OnLButtonDblClk(nFlags, point);
-}
-
-void CDlgPanel::setSelected(BOOL bIsSelected)
-{
-	if (bIsSelected != m_bIsPressed)
-	{
-		m_bIsPressed = bIsSelected;
-		Invalidate();
+	else {
+		VideoStop();
 	}
 }
 
 void CDlgPanel::OnSize(UINT nType, int cx, int cy)
 {
 	CDialogEx::OnSize(nType, cx, cy);
-
+	areaResize = true;
 	CRect rcClient;
 	GetClientRect(&rcClient);
-	//CRect rcCtrl;
-	rcCtrl.SetRect(rcClient.left + padding, rcClient.top + padding, rcClient.right - padding, rcClient.bottom - padding);
+	rcClient.DeflateRect(padding, padding, padding, padding);
 	if (GetDlgItem(IDC_ShowVideo))
 	{
-		GetDlgItem(IDC_ShowVideo)->MoveWindow(rcCtrl);
+		GetDlgItem(IDC_ShowVideo)->MoveWindow(rcClient);
+	}
+}
+
+void CDlgPanel::OnPaint()
+{
+	CPaintDC dc(this); // device context for painting
+	CRect rcClient;
+	GetClientRect(&rcClient);
+	dc.FillSolidRect(rcClient, RGB(125, 125, 125));
+	//é€‰ä¸­åŽæç™½è¾¹
+	if (isSelected)
+	{
+		CBrush border(RGB(240, 248, 251));
+		dc.FrameRect(rcClient, &border);
+	}
+	CDialogEx::OnPaint();
+}
+
+void CDlgPanel::SetSelected(bool sel = true) {
+	isSelected = sel;
+}
+
+void CDlgPanel::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	if(isSelected)
+	{
+		resizingArea = true;
+		focusArea = { 0,0,0,0 };
+		CRect rcClient;
+		GetClientRect(&rcClient);
+		focusArea.p1.x = point.x / (double)rcClient.Width();
+		focusArea.p1.y = point.y / (double)rcClient.Height();
+	}
+	else
+	{
+		SetSelected();
+	}
+	CDialogEx::OnLButtonDown(nFlags, point);
+}
+
+void CDlgPanel::OnMouseMove(UINT nFlag, CPoint point) {
+	if (resizingArea) {
+		areaResize = true;
+		CRect rcClient;
+		GetClientRect(&rcClient);
+		focusArea.p2.x = point.x / (double)rcClient.Width();
+		focusArea.p2.y = point.y / (double)rcClient.Height();
+	}
+	CDialogEx::OnMouseMove(nFlag, point);
+}
+
+void CDlgPanel::OnLButtonUp(UINT nFlag, CPoint point) {
+	if (resizingArea) {
+		areaResize = true;
+		CRect rcClient;
+		GetClientRect(&rcClient);
+		focusArea.p2.x = point.x / (double)rcClient.Width();
+		focusArea.p2.y = point.y / (double)rcClient.Height();
+		Message::AreaMsg msg{
+			cam_play,
+			focusArea.p1.x,focusArea.p1.y,
+			focusArea.p2.x,focusArea.p2.y
+		};
+		auto reply = MsgHandler::sendReqMsg(msg);
+		if (!reply.isSuccess()) {
+			//TODO: æ›´æ–°å¤±è´¥
+			throw std::exception(reply.meta.c_str());
+		}
+	}
+}
+
+using cv::rectangle;
+void CDlgPanel::DrawVideo() {
+	string cam_path;
+	cv::VideoCapture cap;
+
+	cv::Mat frame;
+	IplImage* pFrame = nullptr;
+	CvFont font;
+	cvInitFont(&font, CV_FONT_HERSHEY_COMPLEX, 2.0, 1.0, 0, 3, 8);
+
+	while (true) {
+		CamInfo &cam = Cams::getCamInfo()[cam_play];
+		cam_path = cam.getFullURL();
+		if (!cap.open(cam_path)) {
+			//æ‰“å¼€å¤±è´¥å¤„ç†
+			VideoStop();
+		}
+		TRACE(_T("%s\n"), StrUtil::std2CStr(cam_path));
+		while (!ready) {
+			std::this_thread::yield();
+		}
+		cap >> frame;
+		while (!(cap >> frame, frame.empty()))
+		{
+			static CRect area;
+			if (areaResize) {
+				//ç»˜åˆ¶ç›‘è§†åŒºåŸŸ
+				CRect client;
+				GetClientRect(client);
+
+				area.SetRect(
+					focusArea.p1.x*client.Width(),
+					focusArea.p1.y*client.Height(),
+					focusArea.p2.x*client.Width(),
+					focusArea.p2.y*client.Height()
+				);
+
+				area.NormalizeRect();
+				area &= client;
+				areaResize = false;
+			}
+			rectangle(frame, cv::Rect(area.top, area.left, area.Width(), area.Height()), CV_RGB(0, 255, 0), 2);
+			pFrame = &IplImage(frame);
+			if (!pFrame) {
+				VideoStop();
+				break;
+			}
+
+			//TODO: æŠ¥è­¦é«˜äº®çº¢æ¡†
+			//cvRectangle(pFrame, cvPoint(pad, pad), cvPoint(frame.cols - pad, frame.rows - pad), cvScalar(0, 0, 255), 5, 3, 0);
+
+			//TODO: ç»˜åˆ¶æ–‡å­—çš„ä½ç½®
+			cvPutText(pFrame, cam.ID.c_str(), cvPoint(1200, 65), &font, CV_RGB(255, 255, 255));
+			drawPicToHDC(pFrame, IDC_ShowVideo);
+			//æ¯æ¬¡å“åº”åœ¨33mså†…çš„æŒ‰é”®è¾“å…¥
+			char c = cvWaitKey(33);
+			//æŒ‰ä¸‹çš„é”®ä¸ºEscçš„è¯
+			if (c == VK_ESCAPE)
+				VideoStop();
+		}
 	}
 }
 
@@ -170,78 +224,7 @@ void CDlgPanel::drawPicToHDC(IplImage *img, UINT ID)
 	CRect rect;
 	GetDlgItem(ID)->GetClientRect(&rect);
 	CvvImage cimg;
-	cimg.CopyOf(img); // ¸´ÖÆÍ¼Æ¬
-	cimg.DrawToHDC(hDC, &rect); // ½«Í¼Æ¬»æÖÆµ½ÏÔÊ¾¿Ø¼þµÄÖ¸¶¨ÇøÓòÄÚ
+	cimg.CopyOf(img); // å¤åˆ¶å›¾ç‰‡
+	cimg.DrawToHDC(hDC, &rect); // å°†å›¾ç‰‡ç»˜åˆ¶åˆ°æ˜¾ç¤ºæŽ§ä»¶çš„æŒ‡å®šåŒºåŸŸå†…
 	ReleaseDC(pDC);
-}
-
-void CDlgPanel::onVideoPlay(int index)
-{
-	if(!status[m_index]){
-		std::thread play(taskVideo, this, index);
-		play.detach();
-	}
-}
-
-void CDlgPanel::onVideoShutdown()
-{
-	status[m_index] = false;
-}
-
-UINT taskVideo(LPVOID ptr_param, int cam_idx)
-{
-	CDlgPanel * pTaskMain = (CDlgPanel *)ptr_param;
-
-	int pad = CDlgPanel::padding;
-
-	int &sel = pTaskMain->m_index;
-	auto &status = pTaskMain->status[sel];
-	std::string videoPath = Cams::getCamInfo()[cam_idx].getFullURL();
-	cv::VideoCapture cap;
-	TRACE(_T("%s\n"), StrUtil::stdString2CString(videoPath));
-	//string test_video = "E:\\BLAME.mp4";
-	if (cap.open(videoPath))
-	{
-		status = true;
-		cv::Mat frame;
-		IplImage* pFrame = nullptr;
-		CvFont font;
-		cvInitFont(&font, CV_FONT_HERSHEY_COMPLEX, 2.0, 1.0, 0, 3, 8);
-		while (1)
-		{
-			cap >> frame;
-			if(!frame.empty())
-			{
-				//»æÖÆ¼àÊÓÇøÓò
-				if (pTaskMain->needDrawArea){
-					rectangle(frame, pTaskMain->downPoint, pTaskMain->currentPoint, Scalar(0, 255, 0), 2);
-				}
-				
-				pFrame = &IplImage(frame);
-				if (!pFrame) {
-					status = false;
-					break;
-				}
-
-				//TODO: ±¨¾¯¸ßÁÁºì¿ò
-				//cvRectangle(pFrame, cvPoint(pad, pad), cvPoint(frame.cols - pad, frame.rows - pad), cvScalar(0, 0, 255), 5, 3, 0);
-				
-				//TODO: »æÖÆÎÄ×ÖµÄÎ»ÖÃ
-				cvPutText(pFrame, StrUtil::format("%02d",sel).c_str(), cvPoint(1200, 65), &font, CV_RGB(255, 255, 255));
-				pTaskMain->drawPicToHDC(pFrame, IDC_ShowVideo);
-				//Ã¿´ÎÏìÓ¦ÔÚ33msÄÚµÄ°´¼üÊäÈë
-				char c = cvWaitKey(33);
-				//°´ÏÂµÄ¼üÎªEscµÄ»°
-				if (c == VK_ESCAPE)
-					status = false;
-			}
-			if (status == false)
-				break;
-		}
-		//½áÊøÊ±µÄ×ÊÔ´ÊÍ·Å
-		cap.release();
-		frame.release();
-		pTaskMain->Invalidate();
-	}
-	return TRUE;
 }

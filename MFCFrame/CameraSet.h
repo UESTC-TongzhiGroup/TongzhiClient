@@ -25,6 +25,7 @@ protected:
 
 	void updateSel();
 	void updateCamItem(int, const CamInfo&);
+	int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	virtual BOOL OnInitDialog();
 	CamMode getMode();
 public:
@@ -41,10 +42,10 @@ private:
 
 	static CCameraSet * m_pThis;
 	CamList tmpInfo;
-	std::set<CamInfo> change;
+	std::set<CamInfo> cam_change;
+	std::set<string> cam_delete;
 	int m_CurrentCamIndex;
-	DWORD ip_addr;
-	CString userName;
+	CString user_name;
 	CString passwd;
 	CString cam_address;
 public:
@@ -56,4 +57,8 @@ public:
 	afx_msg void OnCbnChangeTimeStart();
 	afx_msg void OnCbnSelchangeTimeEnd();
 	afx_msg void OnLvnItemchangedEventList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnEnChange();
+	afx_msg void OnStnClickedAddCam();
+	afx_msg LRESULT updateAllCam(WPARAM, LPARAM);
+	afx_msg void OnBnClickedDelSelectedCam();
 };

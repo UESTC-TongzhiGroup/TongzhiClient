@@ -77,28 +77,34 @@ namespace Message {
 
 	IMPL_OUT(AreaMsg) {
 		PUT_OUT(ID);
-		PUT_OUT(left_up);
-		PUT_OUT(right_down);
+		PUT_OUT(top);
+		PUT_OUT(bottom);
+		PUT_OUT(left);
+		PUT_OUT(right);
 	}
 
 	IMPL_IN(AreaMsg) {
-		GET_IN(UInt, ID);
-		GET_IN(Int, left_up);
-		GET_IN(Int, right_down);
+		GET_IN(String, ID);
+		GET_IN(Int, top);
+		GET_IN(Int, bottom);
+		GET_IN(Int, left);
+		GET_IN(Int, right);
 	}
 
 	IMPL_OUT(WarnLogReply) {
 		for (auto wrn : list) {
 			value sub;
 			wrn.toJsonObj(sub);
-			out["list"].append(sub);
+			//out["list"].append(sub);
+			out.append(sub);
 		}
 		PUT_OUT(meta);
 	}
 
 	IMPL_IN(WarnLogReply) {
 		list.clear();
-		for (auto &itor : in["list"]) {
+		//for (auto &itor : in["list"]) {
+		for (auto &itor : in) {
 			WarnMsg wrn;
 			wrn.fromJsonObj(itor);
 			list.push_back(wrn);
@@ -107,22 +113,24 @@ namespace Message {
 	}
 
 	IMPL_OUT(DelCamMsg) {
-		for (auto id : list) {
-			out["list"].append(id);
+		for (auto ID : list) {
+			//out["list"].append(ID);
+			out.append(ID);
 		}
 	}
 
 	IMPL_IN(DelCamMsg) {
 		list.clear();
-		for (auto &itor : in["list"]) {
+		//for (auto &itor : in["list"]) {
+		for (auto &itor : in) {
 			list.emplace(itor.asString());
 		}
 	}
 
 	IMPL_OUT(FocusCamMsg) {
-		for (auto id : list) {
+		for (auto ID : list) {
 			//out["list"].append(id);
-			out.append(id);
+			out.append(ID);
 		}
 	}
 

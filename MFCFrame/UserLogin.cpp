@@ -81,9 +81,9 @@ int CUserLogin::OnCreate(LPCREATESTRUCT lpCreateStruct)
 using namespace StrUtil;
 bool  CUserLogin::checkLicense(CString usr, CString passwd) {
 	auto lmap = Config::getLicensesMap();
-	string usr_str=CString2stdString(usr);
+	string usr_str=CStr2std(usr);
 	auto pair = lmap.find(usr_str);
-	return pair != lmap.end() && passwd == stdString2CString(pair->second);
+	return pair != lmap.end() && passwd == std2CStr(pair->second);
 }
 
 

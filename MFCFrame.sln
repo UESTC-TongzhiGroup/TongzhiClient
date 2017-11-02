@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26730.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MFCFrame", "MFCFrame\MFCFrame.vcxproj", "{51AE1248-823E-4823-A0C6-903BB3594790}"
 EndProject
@@ -9,6 +9,8 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Debug-static|x64 = Debug-static|x64
+		Debug-static|x86 = Debug-static|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
@@ -17,6 +19,10 @@ Global
 		{51AE1248-823E-4823-A0C6-903BB3594790}.Debug|x64.Build.0 = Debug|x64
 		{51AE1248-823E-4823-A0C6-903BB3594790}.Debug|x86.ActiveCfg = Debug|Win32
 		{51AE1248-823E-4823-A0C6-903BB3594790}.Debug|x86.Build.0 = Debug|Win32
+		{51AE1248-823E-4823-A0C6-903BB3594790}.Debug-static|x64.ActiveCfg = Debug-static|x64
+		{51AE1248-823E-4823-A0C6-903BB3594790}.Debug-static|x64.Build.0 = Debug-static|x64
+		{51AE1248-823E-4823-A0C6-903BB3594790}.Debug-static|x86.ActiveCfg = Debug-static|Win32
+		{51AE1248-823E-4823-A0C6-903BB3594790}.Debug-static|x86.Build.0 = Debug-static|Win32
 		{51AE1248-823E-4823-A0C6-903BB3594790}.Release|x64.ActiveCfg = Release|x64
 		{51AE1248-823E-4823-A0C6-903BB3594790}.Release|x64.Build.0 = Release|x64
 		{51AE1248-823E-4823-A0C6-903BB3594790}.Release|x86.ActiveCfg = Release|Win32
@@ -24,5 +30,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E453A41A-046C-4EC8-ABB9-DBB0B76EEBEF}
 	EndGlobalSection
 EndGlobal

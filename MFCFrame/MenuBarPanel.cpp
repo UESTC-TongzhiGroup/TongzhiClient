@@ -97,7 +97,7 @@ CMenuBarPanel * CMenuBarPanel::m_pThis = NULL;
 
 int CMenuBarPanel::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	EventBus::regist(Events::UserLogin::id(), GetSafeHwnd());
+	EventBus::regist(Events::UserLogin::ID(), GetSafeHwnd());
 	if (CPanel::OnCreate(lpCreateStruct) == -1)
 		return -1;
 	if(m_imgMenuBar.IsNull())

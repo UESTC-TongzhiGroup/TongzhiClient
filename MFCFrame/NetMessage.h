@@ -62,10 +62,10 @@ namespace Message {
 		NO_JSON_NEED
 	};
 
-	typedef struct {
+	struct FocusCamMsg{
 		std::set<string> list;
 		JSON_INTERFACE_DECL
-	} FocusCamMsg;
+	};
 
 	
 	typedef _ConnMsg<1> LoginMsg;
@@ -81,17 +81,17 @@ namespace Message {
 		JSON_INTERFACE_DECL
 	};
 
-	typedef struct {
+	struct GetWarnLogMsg{
 		string time;
 		string meta;
 		JSON_INTERFACE_DECL
-	}GetWarnLogMsg;
+	};
 
-	typedef struct {
+	struct DelWarnLogMsg{
 		std::set<string> list;
 		string meta;
 		JSON_INTERFACE_DECL
-	}DelWarnLogMsg;
+	};
 
 	struct WarnLogReply{
 		std::vector<WarnMsg> list;
@@ -101,9 +101,11 @@ namespace Message {
 
 
 	struct AreaMsg{
-		UINT ID;
-		int left_up;
-		int right_down;
+		string ID;
+		double left;
+		double top;
+		double right;
+		double bottom;
 		JSON_INTERFACE_DECL
 	};
 

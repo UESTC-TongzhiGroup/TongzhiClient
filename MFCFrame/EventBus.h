@@ -19,7 +19,7 @@ private:
 	std::set<HWND> handlerSet;
 	void regist(HWND);
 	void dispatch(WPARAM, LPARAM);
-	EventBus(EID id) :EVENT_ID(id){}
+	EventBus(EID ID) :EVENT_ID(ID){}
 public:
 	static EventBus& getEventBus(EID);
 	static void regist(EID, HWND);
@@ -28,10 +28,10 @@ public:
 	static void dispatch(GlobalEvent& _event)
 	{
 		string event_name = _event.name();
-		TRACE(_T("分发事件 %s\n"), StrUtil::stdString2CString(event_name));
+		TRACE(_T("分发事件 %s\n"), StrUtil::std2CStr(event_name));
 		auto ptr = std::make_shared<GlobalEvent>(_event);
-		getEventBus(_event.id()).dispatch(
-			_event.id(),
+		getEventBus(_event.ID()).dispatch(
+			_event.ID(),
 			(LPARAM)ptr.get()
 		);
 	}

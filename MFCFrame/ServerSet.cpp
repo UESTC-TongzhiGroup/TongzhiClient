@@ -13,6 +13,8 @@
 
 // CServerSet ¶Ô»°¿ò
 
+using namespace StrUtil;
+
 IMPLEMENT_DYNAMIC(CServerSet, CDialogEx)
 
 CServerSet::CServerSet(CWnd* pParent /*=NULL*/)
@@ -57,11 +59,11 @@ BOOL CServerSet::OnInitDialog()
 	auto serverInfo = Config::getServerInfo();
 	if (!serverInfo.load)
 		return TRUE;
-	m_url = stdString2CString(serverInfo.url);
+	m_url = std2CStr(serverInfo.url);
 	m_sendport = serverInfo.reqport;
 
-	m_user = stdString2CString(serverInfo.loginUser);
-	m_pass = stdString2CString(serverInfo.loginPass);
+	m_user = std2CStr(serverInfo.loginUser);
+	m_pass = std2CStr(serverInfo.loginPass);
 
 	UpdateData(FALSE);
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -86,12 +88,12 @@ void CServerSet::OnBnClickedOk()
 {
 	UpdateData();
 	auto &serverInfo = Config::getServerInfo();
-	serverInfo.url = CString2stdString(m_url);
+	serverInfo.url = CStr2std(m_url);
 
 	serverInfo.reqport = m_sendport;
 
-	serverInfo.loginUser = CString2stdString(m_user);
-	serverInfo.loginPass = CString2stdString(m_pass);
+	serverInfo.loginUser = CStr2std(m_user);
+	serverInfo.loginPass = CStr2std(m_pass);
 
 	serverInfo.load = true;
 
@@ -110,7 +112,7 @@ void CServerSet::OnBnClickedOk()
 			CDialogEx::OnOK();
 		}
 		else {
-			auto reason = StrUtil::stdString2CString(reply.meta);
+			auto reason = StrUtil::std2CStr(reply.meta);
 			MessageBox(reason, _T("µÇÂ½Ê§°Ü"));
 		}
 	}

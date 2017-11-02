@@ -161,10 +161,10 @@ void CVideoPanel::CreateVideoComponents()
 	{
 		//	m_VideoWindow.pDlgVideo[i].SetMainDlg(this, i);
 		m_VideoWindow.pDlgVideo[i].Create(IDD_DIALOG_PANEL, this);
-		m_VideoWindow.pDlgVideo[i].setIndex(i);
+		//m_VideoWindow.pDlgVideo[i].setIndex(i);
 		m_VideoWindow.pDlgVideo[i].ShowWindow(SW_HIDE);
+		m_VideoWindow.pDlgVideo[i].VideoStop();
 	}
-	CDlgPanel::initAllStatus(MAX_VIDEO_WINDOW_NUM);
 }
 
 void CVideoPanel::UpdateComponents()
@@ -275,7 +275,7 @@ void CVideoPanel::UpdateVideoComponents(LPRECT lpRect)
 
 		for (int i = m_VideoWindow.channels; i < MAX_VIDEO_WINDOW_NUM; i++) {
 			m_VideoWindow.pDlgVideo[i].ShowWindow(SW_HIDE);
-			m_VideoWindow.pDlgVideo[i].onVideoShutdown();
+			m_VideoWindow.pDlgVideo[i].VideoStop();
 		}
 	}
 	else
@@ -310,12 +310,12 @@ BOOL CVideoPanel::OnCommand(WPARAM wParam, LPARAM lParam)
 			if (m_VideoWindow.pDlgVideo[i].m_hWnd == hWndButton)
 			{
 				
-				m_VideoWindow.pDlgVideo[i].setSelected(TRUE);
+				m_VideoWindow.pDlgVideo[i].SetSelected(TRUE);
 				m_VideoLabels = i;
 			}
 			else
 			{
-				m_VideoWindow.pDlgVideo[i].setSelected(FALSE);
+				m_VideoWindow.pDlgVideo[i].SetSelected(FALSE);
 			}
 
 		}
@@ -337,7 +337,6 @@ BOOL CVideoPanel::OnCommand(WPARAM wParam, LPARAM lParam)
 					CRect	rcClient;
 					GetClientRect(&rcClient);
 					m_VideoWindow.pDlgVideo[i].MoveWindow(&rcClient);
-
 				}
 				else
 				{
@@ -355,7 +354,6 @@ BOOL CVideoPanel::OnCommand(WPARAM wParam, LPARAM lParam)
 				if (m_VideoWindow.pDlgVideo[i].m_hWnd == hWndButton)
 				{
 					UpdateComponents();
-
 				}
 			}
 
@@ -365,15 +363,20 @@ BOOL CVideoPanel::OnCommand(WPARAM wParam, LPARAM lParam)
 	return CWnd::OnCommand(wParam, lParam);
 }
 
-void  CVideoPanel::OnVideoPlay(int m_VideoLabels, int camIndex)
+void  CVideoPanel::OnVideoPlay(int m_VideoLabels, CamID ID)
 {
-	if (m_VideoLabels != -1)
-		m_VideoWindow.pDlgVideo[m_VideoLabels].onVideoPlay(camIndex);
+	if (m_VideoLabels != -1) {
+		m_VideoWindow.pDlgVideo[m_VideoLabels].SetCam(ID);
+		m_VideoWindow.pDlgVideo[m_VideoLabels].VideoPlay();
+	}
 }
 
 void CVideoPanel::OnVideoStop(int m_VideoLabels)
 {
 	if (m_VideoLabels != -1)
-		m_VideoWindow.pDlgVideo[m_VideoLabels].onVideoShutdown();
+		m_VideoWindow.pDlgVideo[m_VideoLabels].VideoStop();
 }
 
+bool CVideoPanel::isPlaying(int m_VideoLabels) {
+	return m_VideoWindow.pDlgVideo[m_VideoLabels].isPlaying();
+}

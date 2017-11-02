@@ -10,11 +10,11 @@ using std::string;
 using std::vector;
 
 namespace StrUtil {
-	inline string CString2stdString(CString cs) {
+	inline string CStr2std(CString cs) {
 		return (CStringA)cs;
 	}
 	
-	inline CString stdString2CString(string s) {
+	inline CString std2CStr(string s) {
 		return CString(s.c_str());
 	}
 	

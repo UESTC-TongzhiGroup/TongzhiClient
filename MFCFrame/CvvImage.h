@@ -96,6 +96,6 @@ protected:
 
 };
 
-typedef CvvImage CImage;
+//typedef CvvImage CImage;
 
 #endif

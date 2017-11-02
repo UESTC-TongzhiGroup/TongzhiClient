@@ -168,8 +168,8 @@ void CAddUser::OnBnClickedButton1()//È·¶¨
 	}
 
 	Message::RegisterMsg msg{
-		CString2stdString(m_UsernameText),
-		CString2stdString(m_passwordText),
+		CStr2std(m_UsernameText),
+		CStr2std(m_passwordText),
 		User::getTypeName(type)
 	};
 	auto reply = MsgHandler::sendReqMsg(msg);

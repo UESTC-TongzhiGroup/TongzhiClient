@@ -60,8 +60,6 @@ MsgHandler::MsgHandler():
 	);
 }
 
-#define NO_HEART_BEAT
-
 MsgHandler& MsgHandler::get(bool startNow = true) {
 	static MsgHandler inst;
 	if (startNow && !inst.active) {

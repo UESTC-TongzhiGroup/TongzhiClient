@@ -1,7 +1,7 @@
 #pragma once
-#include"resource.h"
+#include "resource.h"
 #include "ImageButton.h"
-#include"CptionBar.h"
+#include "CptionBar.h"
 #include "afxwin.h"
 // CAddUser ¶Ô»°¿ò
 
