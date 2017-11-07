@@ -33,14 +33,14 @@ BEGIN_MESSAGE_MAP(CDlgPanel, CDialogEx)
 END_MESSAGE_MAP()
 
 CDlgPanel::CDlgPanel(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CDlgPanel::IDD, pParent), videoDrawer(this)
+	: CDialogEx(CDlgPanel::IDD, pParent), videoDrawer(std::ref(*this))
 {
 	focusArea = { 0,0,1,1 };
 }
 
 CDlgPanel::~CDlgPanel()
 {
-	//SetEvent(m_hThreadEvent);
+	videoDrawer.stop();
 }
 
 void CDlgPanel::DoDataExchange(CDataExchange* pDX)
@@ -55,12 +55,12 @@ void CDlgPanel::SetCam(CamID ID) {
 
 void CDlgPanel::VideoPlay()
 {
-	ready = true;
+	videoDrawer.resume();
 }
 
 void CDlgPanel::VideoStop()
 {
-	ready = false;
+	videoDrawer.pause();
 }
 
 void CDlgPanel::VideoToggle()
@@ -164,7 +164,8 @@ void CDlgPanel::DrawVideo() {
 	CvFont font;
 	cvInitFont(&font, CV_FONT_HERSHEY_COMPLEX, 2.0, 1.0, 0, 3, 8);
 
-	while (true) {
+	while (videoDrawer.isRunning()) {
+		videoDrawer.waitPlay();
 		CamInfo &cam = Cams::getCamInfo()[cam_play];
 		cam_path = cam.getFullURL();
 		if (!cap.open(cam_path)) {
@@ -172,11 +173,9 @@ void CDlgPanel::DrawVideo() {
 			VideoStop();
 		}
 		TRACE(_T("%s\n"), StrUtil::std2CStr(cam_path));
-		while (!ready) {
-			std::this_thread::yield();
-		}
+		
 		cap >> frame;
-		while (!(cap >> frame, frame.empty()))
+		while (ready && !(cap >> frame, frame.empty()))
 		{
 			static CRect area;
 			if (areaResize) {
@@ -214,6 +213,8 @@ void CDlgPanel::DrawVideo() {
 			if (c == VK_ESCAPE)
 				VideoStop();
 		}
+		VideoStop();
+		cap.release();
 	}
 }
 

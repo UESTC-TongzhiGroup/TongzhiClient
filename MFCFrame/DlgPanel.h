@@ -4,12 +4,12 @@
 #include "CamUtils.h"
 #include <iostream>
 #include <deque>
-#include <condition_variable>
 #include <mutex>
+#include <condition_variable>
 #include <atomic>
 #include "CvvImage.h"
 
-using std::condition_variable;
+using std::condition_variable_any;
 
 class CDlgPanel : public CDialogEx
 {
@@ -27,7 +27,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
-	std::atomic<bool> ready;
+	std::atomic<bool> ready = false;
 	bool isSelected = false;
 	bool resizingArea = false;
 	bool areaResize = false;
@@ -63,15 +63,42 @@ public:
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 private:
-	class drawThread : public std::thread{
+	class drawThread{
 	private:
-		std::atomic<bool> &ready;
+		std::atomic<bool> &ready, run = true;
+		std::mutex m;
+		std::condition_variable play;
+		std::thread th;
 	public:
-		drawThread(CDlgPanel *panel) :
-			std::thread(&CDlgPanel::DrawVideo, panel), ready(panel->ready) {}
+		drawThread(CDlgPanel &panel) :
+			ready(panel.ready), th(&CDlgPanel::DrawVideo, &panel) {}
+
+		void waitPlay() {
+			std::unique_lock <std::mutex> lck(m);
+			play.wait(lck, [this]()->bool {return ready; });
+		}
+
+		void pause() {
+			ready = false;
+		}
+
+		void resume() {
+			ready = true;
+			play.notify_one();
+		}
+
+		void stop() {
+			run = false;
+			ready = false;
+			play.notify_one();
+		}
+
+		bool isRunning() {
+			return run;
+		}
 
 		~drawThread() {
-			detach();
+			th.join();
 		}
 	}videoDrawer;
 };
