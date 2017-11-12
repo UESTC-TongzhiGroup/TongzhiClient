@@ -1,32 +1,32 @@
 #pragma once
-#include "EventBus.h"
 #include "NetMessage.h"
 #include "UserUtil.h"
+#include <typeinfo>
+#include <typeindex>
 
 
-#define DEF_EVENT(EVENT,E_ID)									\
+#define DEF_EVENT(EVENT)										\
 	public:														\
-		inline static EID ID() {										\
-			return E_ID;										\
-		}														\
-		inline static string name() {									\
+		inline static const char * name() {							\
 			return #EVENT;										\
 		}														\
 
 namespace Events {
-	class CamListUpdate {
-		DEF_EVENT(CamListUpdate, 0)
+	class BaseEvent {};
+
+	class CamListUpdate : public BaseEvent {
+		DEF_EVENT(CamListUpdate)
 	}; 
 
-	class UserLogin {
-		DEF_EVENT(UserLogin, 1)
+	class UserLogin : public BaseEvent {
+		DEF_EVENT(UserLogin)
 	public:
 		UserType type;
 		UserLogin(UserType _type) :type(_type) {}
 	};
 
-	class Warn {
-		DEF_EVENT(Warn, 2)
+	class Warn : public BaseEvent {
+		DEF_EVENT(Warn)
 	public:
 		typedef Message::WarnMsg msg;
 		msg warn;

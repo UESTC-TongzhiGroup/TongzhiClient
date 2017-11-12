@@ -2,8 +2,7 @@
 #include "SideBar.h"
 #include "resource.h"
 #include "MainFrame.h"
-
-#include "Events.h"
+#include "EventBus.h"
 #include <string.h>
 #include <iostream>
 #include <memory>
@@ -49,7 +48,6 @@ BEGIN_MESSAGE_MAP(CSideBar, CPanel)
 	ON_MESSAGE(SPLIT_UPDATE, CSideBar::OnSplitTreeDoubleClk)
 	ON_MESSAGE(CAM_SEL_UPDATE,CSideBar::OnCamTreeDoubleClk)
 
-	ON_MESSAGE(GLOBAL_EVENT, CSideBar::UpdateCamTree)
 END_MESSAGE_MAP()
 
 
@@ -81,7 +79,9 @@ int CSideBar::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CPanel::OnCreate(lpCreateStruct) == -1)
 		return -1;
-	EventBus::regist(CamListUpdate::ID(), GetSafeHwnd());
+	EventBus::regist<CamListUpdate>(CREAT_HANDLER(
+		[this](BaseEvent &e)->void {UpdateCamTree(static_cast<CamListUpdate&>(e)); }
+	));
 
 	CRect rcClient;
 	GetClientRect(rcClient);
@@ -209,10 +209,7 @@ int CSideBar::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 
-LRESULT CSideBar::UpdateCamTree(WPARAM EID,LPARAM _event) {
-	auto e = reinterpret_cast<CamListUpdate*>(_event);
-	if (EID != e->ID())
-		return TRUE;
+void CSideBar::UpdateCamTree(CamListUpdate &e) {
 	m_CamTreeCtrl.DeleteAllItems();
 	HTREEITEM hRoot = m_CamTreeCtrl.InsertItem(_T("ÉãÏñÍ·×é"));
 	for (auto itor : Cams::getCamInfo())
@@ -222,7 +219,6 @@ LRESULT CSideBar::UpdateCamTree(WPARAM EID,LPARAM _event) {
 		m_CamTreeCtrl.SetItemData(hTreeItem, 0);
 		m_CamTreeCtrl.Expand(hRoot, TVE_EXPAND);
 	}
-	return TRUE;
 }
 
 void CSideBar::OnSize(UINT nType, int cx, int cy)

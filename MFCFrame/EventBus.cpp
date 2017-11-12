@@ -4,32 +4,27 @@
 #include "Resource.h"
 #include "EventBus.h"
 
-std::map<EID, EventBus> EventBus::BUS_MAP;
+BusMap EventBus::BUS_MAP;
 
-void EventBus::regist(HWND handle)
+void EventBus::regist(Handler &handle)
 {
-	handlerSet.insert(handle);
+	handlers.insert({ handle.ivk, handle });
 }
 
-void EventBus::dispatch(WPARAM wParam, LPARAM lParam)
+void EventBus::unregist(Handler::Invoker ivk)
 {
-	for (auto itor = handlerSet.begin(); itor != handlerSet.end(); itor++) {
-		HWND handle = *itor;
-		::SendMessage(handle, GLOBAL_EVENT, wParam, lParam);
+	handlers.erase(ivk);
+}
+
+void EventBus::dispatch(BaseEvent &event)
+{
+	for (auto &itor = handlers.begin(); itor != handlers.end(); itor++) {
+		itor->second.func(event);
 	}
 }
 
 EventBus& EventBus::getEventBus(EID ID)
 {
-	auto itor = BUS_MAP.find(ID);
-	if (itor == BUS_MAP.end()) {
-		return BUS_MAP.insert(std::make_pair(ID, EventBus(ID))).first->second;
-	}
-	return itor->second;
-}
-
-void EventBus::regist(EID ID, HWND handle)
-{
-	getEventBus(ID).regist(handle);
+	return BUS_MAP.emplace(ID, EventBus()).first->second;
 }
 

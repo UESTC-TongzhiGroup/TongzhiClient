@@ -87,27 +87,23 @@ BEGIN_MESSAGE_MAP(CAlarmLog, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_SIZE()
 	ON_WM_CREATE()
-	ON_MESSAGE(GLOBAL_EVENT, &CAlarmLog::OnWarnMsg)
 END_MESSAGE_MAP()
 
 
 // CAlarmLog 消息处理程序
 
-#define str2Cstr StrUtil::std2CStr
-LRESULT CAlarmLog::OnWarnMsg(WPARAM EID, LPARAM _event) {
+using StrUtil::std2CStr;
+void CAlarmLog::OnWarnMsg(Warn &_event) {
 	CString str;
-	auto event_ptr = reinterpret_cast<Events::Warn*>(_event);
-	const auto &warn = event_ptr->warn;
+	const auto &warn = _event.warn;
 	int index = m_AlarmLogList.GetItemCount();
 	str.Format(L"%d", index + 1);
 	m_AlarmLogList.InsertItem(index, str);
-	m_AlarmLogList.SetItemText(index, 1, str2Cstr(warn.time));
-	m_AlarmLogList.SetItemText(index, 2, str2Cstr(warn.route));
-	m_AlarmLogList.SetItemText(index, 3, str2Cstr(warn.cameraName));
-	m_AlarmLogList.SetItemText(index, 4, str2Cstr(warn.context));
-	m_AlarmLogList.SetItemText(index, 5, str2Cstr(warn.producer));
-
-	return TRUE;
+	m_AlarmLogList.SetItemText(index, 1, std2CStr(warn.time));
+	m_AlarmLogList.SetItemText(index, 2, std2CStr(warn.route));
+	m_AlarmLogList.SetItemText(index, 3, std2CStr(warn.cameraName));
+	m_AlarmLogList.SetItemText(index, 4, std2CStr(warn.context));
+	m_AlarmLogList.SetItemText(index, 5, std2CStr(warn.producer));
 }
 
 void CAlarmLog::OnPaint()
@@ -244,7 +240,9 @@ void CAlarmLog::OnSize(UINT nType, int cx, int cy)
 
 int CAlarmLog::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	EventBus::regist(Events::Warn::ID(), GetSafeHwnd());
+	EventBus::regist<Warn>(CREAT_HANDLER(
+		[this](BaseEvent &e)->void{OnWarnMsg(static_cast<Warn&>(e)); }
+	));
 	if (CDialogEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 

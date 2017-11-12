@@ -7,8 +7,10 @@
 #include "ServerSet.h"
 #include "CameraSet.h"
 #include "Aboutdlg.h"
+#include "Events.h"
 
-using namespace std;
+using std::vector;
+using namespace Events;
 class CMenuBarPanel;
 class CMenuItem
 {
@@ -40,7 +42,7 @@ public:
 	DECLARE_MESSAGE_MAP()
 protected:
 	void OnPaint();
-	afx_msg LRESULT OnUserLogin(WPARAM, LPARAM);
+	afx_msg void OnUserLogin(UserLogin&);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);

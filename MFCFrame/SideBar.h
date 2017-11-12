@@ -3,6 +3,9 @@
 #include "ImageButton.h"
 #include "DeskPanel.h"
 #include "UITreeCtrl.h"
+#include "Events.h"
+
+using namespace Events;
 
 class CSideBar :public CPanel
 {
@@ -17,7 +20,7 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg LRESULT OnSplitTreeDoubleClk(WPARAM,LPARAM);
 	afx_msg LRESULT OnCamTreeDoubleClk(WPARAM,LPARAM);
-	afx_msg LRESULT UpdateCamTree(WPARAM, LPARAM);
+	afx_msg void UpdateCamTree(CamListUpdate&);
 private:
 	CImageButton m_btnSideBarHead;
 	CUITreeCtrl m_CamTreeCtrl;

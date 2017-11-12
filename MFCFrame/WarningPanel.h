@@ -1,6 +1,7 @@
 #pragma once
 #include"resource.h"
 #include "afxcmn.h"
+#include "EventBus.h"
 
 // CWarningPanel 对话框
 
@@ -18,7 +19,7 @@ public:
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 	DECLARE_MESSAGE_MAP()
-	afx_msg LRESULT OnWarnMsg(WPARAM EID, LPARAM _event);
+	afx_msg void OnWarnMsg(Events::Warn&);
 	void OnSize(UINT nType, int cx, int cy);
 private:
 	

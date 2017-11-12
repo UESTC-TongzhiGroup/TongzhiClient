@@ -2,8 +2,11 @@
 #include"resource.h"
 #include "afxcmn.h"
 #include "ImageButton.h"
+#include "Events.h"
 
 // CAlarmLog 对话框
+
+using namespace Events;
 
 class CAlarmLog : public CDialogEx
 {
@@ -20,7 +23,7 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 	DECLARE_MESSAGE_MAP()
-	afx_msg LRESULT OnWarnMsg(WPARAM EID, LPARAM _event);
+	afx_msg void OnWarnMsg(Warn&);
 	void OnPaint();
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

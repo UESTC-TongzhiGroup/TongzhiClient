@@ -163,59 +163,64 @@ void CDlgPanel::DrawVideo() {
 	IplImage* pFrame = nullptr;
 	CvFont font;
 	cvInitFont(&font, CV_FONT_HERSHEY_COMPLEX, 2.0, 1.0, 0, 3, 8);
-
-	while (videoDrawer.isRunning()) {
-		videoDrawer.waitPlay();
-		CamInfo &cam = Cams::getCamInfo()[cam_play];
-		cam_path = cam.getFullURL();
-		if (!cap.open(cam_path)) {
-			//打开失败处理
-			VideoStop();
-		}
-		TRACE(_T("%s\n"), StrUtil::std2CStr(cam_path));
-		
-		cap >> frame;
-		while (ready && !(cap >> frame, frame.empty()))
-		{
-			static CRect area;
-			if (areaResize) {
-				//绘制监视区域
-				CRect client;
-				GetClientRect(client);
-
-				area.SetRect(
-					focusArea.p1.x*client.Width(),
-					focusArea.p1.y*client.Height(),
-					focusArea.p2.x*client.Width(),
-					focusArea.p2.y*client.Height()
-				);
-
-				area.NormalizeRect();
-				area &= client;
-				areaResize = false;
-			}
-			rectangle(frame, cv::Rect(area.top, area.left, area.Width(), area.Height()), CV_RGB(0, 255, 0), 2);
-			pFrame = &IplImage(frame);
-			if (!pFrame) {
-				VideoStop();
-				break;
-			}
-
-			//TODO: 报警高亮红框
-			//cvRectangle(pFrame, cvPoint(pad, pad), cvPoint(frame.cols - pad, frame.rows - pad), cvScalar(0, 0, 255), 5, 3, 0);
-
-			//TODO: 绘制文字的位置
-			cvPutText(pFrame, cam.ID.c_str(), cvPoint(1200, 65), &font, CV_RGB(255, 255, 255));
-			drawPicToHDC(pFrame, IDC_ShowVideo);
-			//每次响应在33ms内的按键输入
-			char c = cvWaitKey(33);
-			//按下的键为Esc的话
-			if (c == VK_ESCAPE)
-				VideoStop();
-		}
+Wait:
+	videoDrawer.waitPlay();
+	if (!videoDrawer.isRunning())
+		goto End;
+	if (!ready)
+		goto Wait;
+Init://没有直接跳转到这个块的只有顺序过来的
+	CamInfo &cam = Cams::getCamInfo()[cam_play];
+	cam_path = cam.getFullURL();
+	if (!cap.open(cam_path)) {
+		//打开失败处理
 		VideoStop();
-		cap.release();
+		goto Wait;
 	}
+	TRACE(_T("%s\n"), StrUtil::std2CStr(cam_path));
+Work:
+	if (!videoDrawer.isRunning())
+		goto End;
+	if (!ready)
+		goto Wait;
+	if (!(cap >> frame, frame.empty()))
+	{
+		static CRect area;
+		if (areaResize) {
+			//绘制监视区域
+			CRect client;
+			GetClientRect(client);
+
+			area.SetRect(
+				focusArea.p1.x*client.Width(),
+				focusArea.p1.y*client.Height(),
+				focusArea.p2.x*client.Width(),
+				focusArea.p2.y*client.Height()
+			);
+
+			area.NormalizeRect();
+			area &= client;
+			areaResize = false;
+		}
+		rectangle(frame, cv::Rect(area.top, area.left, area.Width(), area.Height()), CV_RGB(0, 255, 0), 2);
+		pFrame = &IplImage(frame);
+
+		//TODO: 报警高亮红框
+		//cvRectangle(pFrame, cvPoint(pad, pad), cvPoint(frame.cols - pad, frame.rows - pad), cvScalar(0, 0, 255), 5, 3, 0);
+
+		//TODO: 绘制文字的位置
+		cvPutText(pFrame, cam.ID.c_str(), cvPoint(1200, 65), &font, CV_RGB(255, 255, 255));
+		drawPicToHDC(pFrame, IDC_ShowVideo);
+		//每次响应在33ms内的按键输入
+		char c = cvWaitKey(33);
+		//按下的键为Esc的话
+		if (c == VK_ESCAPE)
+			ready = false;
+	}
+	goto Work;
+End:
+	cap.release();
+	return;
 }
 
 void CDlgPanel::drawPicToHDC(IplImage *img, UINT ID)

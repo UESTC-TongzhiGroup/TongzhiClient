@@ -5,6 +5,7 @@
 #include <thread>
 #include "NetHandler.h"
 #include "Events.h"
+#include "EventBus.h"
 
 using std::stringstream;
 

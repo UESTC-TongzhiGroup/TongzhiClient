@@ -9,8 +9,6 @@
 #include <atomic>
 #include "CvvImage.h"
 
-using std::condition_variable_any;
-
 class CDlgPanel : public CDialogEx
 {
 	DECLARE_DYNAMIC(CDlgPanel)
@@ -75,7 +73,8 @@ private:
 
 		void waitPlay() {
 			std::unique_lock <std::mutex> lck(m);
-			play.wait(lck, [this]()->bool {return ready; });
+			//play.wait(lck, [this]()->bool {return ready; });
+			play.wait(lck);
 		}
 
 		void pause() {
@@ -90,7 +89,7 @@ private:
 		void stop() {
 			run = false;
 			ready = false;
-			play.notify_one();
+			play.notify_all();
 		}
 
 		bool isRunning() {

@@ -11,6 +11,8 @@
 #include <mmsystem.h>
 #pragma comment(lib, "WINMM.LIB")
 
+using namespace Events;
+
 #define IDC_WARNINGLIST 10001
 // CWarningPanel 对话框
 
@@ -37,17 +39,15 @@ BEGIN_MESSAGE_MAP(CWarningPanel, CDialogEx)
 	ON_WM_SIZE()
 	ON_WM_CREATE()
 	ON_WM_PAINT()
-	ON_MESSAGE(GLOBAL_EVENT, &CWarningPanel::OnWarnMsg)
 END_MESSAGE_MAP()
 
 // CWarningPanel 消息处理程序
 
 #define str2Cstr StrUtil::std2CStr
 
-LRESULT CWarningPanel::OnWarnMsg(WPARAM EID, LPARAM _event) {
+void CWarningPanel::OnWarnMsg(Warn &_event) {
 	CString str;
-	auto event_ptr = reinterpret_cast<Events::Warn*>(_event);
-	const auto &warn = event_ptr->warn;
+	const auto &warn = _event.warn;
 	int index = m_WarningList.GetItemCount();
 	str.Format(L"%d", index + 1);
 	m_WarningList.InsertItem(index, str);
@@ -59,7 +59,6 @@ LRESULT CWarningPanel::OnWarnMsg(WPARAM EID, LPARAM _event) {
 
 	//PlaySound(nullptr, NULL, SND_FILENAME | SND_ASYNC);
 	PlaySound(_T("image\\warning.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_NOSTOP);
-	return TRUE;
 }
 
 
@@ -84,7 +83,9 @@ void CWarningPanel::OnSize(UINT nType, int cx, int cy)
 
 int CWarningPanel::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	EventBus::regist(Events::Warn::ID(), GetSafeHwnd());
+	EventBus::regist<Warn>(CREAT_HANDLER(
+		[this](BaseEvent& e)->void{ OnWarnMsg(static_cast<Warn&>(e)); }
+	));
 	if (CDialogEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 	CRect rcClient;
