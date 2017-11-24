@@ -101,7 +101,7 @@ namespace Cams {
 		return getCamInfo().size();
 	}
 
-	void updateCamList();
+	void pullCamInfoList();
 
 #define RETURN_CASE(_case)	\
 	case _case:				\

@@ -22,6 +22,7 @@ public:
 
 	Invoker ivk;
 	Function func;
+	Handler(Invoker ivk) :ivk(ivk), func() {};
 	Handler(Invoker ivk, Function func) : ivk(ivk), func(func) {}
 
 	bool operator== (Handler& another) {

@@ -3,6 +3,7 @@
 #include "NetHandler.h"
 #include "NetMessage.h"
 #include "StrUtil.h"
+#include "EventBus.h"
 
 #pragma comment(lib, "vfw32.lib")
 #pragma comment(lib, "comctl32.lib")
@@ -36,11 +37,18 @@ CDlgPanel::CDlgPanel(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CDlgPanel::IDD, pParent), videoDrawer(std::ref(*this))
 {
 	focusArea = { 0,0,1,1 };
+	Handler handler(this);
+	handler.func = [this](BaseEvent &e)->void {
+		isSelected = (this == Events::HMISelect::current);
+		Invalidate();
+	};
+	EventBus::regist<Events::HMISelect>(handler);
 }
 
 CDlgPanel::~CDlgPanel()
 {
 	videoDrawer.stop();
+	EventBus::unregistAll(this);
 }
 
 void CDlgPanel::DoDataExchange(CDataExchange* pDX)
@@ -116,10 +124,7 @@ void CDlgPanel::OnLButtonDown(UINT nFlags, CPoint point)
 		focusArea.p1.x = point.x / (double)rcClient.Width();
 		focusArea.p1.y = point.y / (double)rcClient.Height();
 	}
-	else
-	{
-		SetSelected();
-	}
+	EventBus::dispatch(HMISelect(this));
 	CDialogEx::OnLButtonDown(nFlags, point);
 }
 

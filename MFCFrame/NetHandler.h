@@ -59,7 +59,7 @@ public:
 		Json::Reader reader;
 		Json::Value root;
 		reader.parse(response, root);
-		BOOST_ASSERT(CHECK_TYPE(root) == ID_OF_MSG_TYPE(Reply_t));
+		assert(CHECK_TYPE(root) == ID_OF_MSG_TYPE(Reply_t));
 		Reply_t reply;
 		reply.fromJsonObj(root["content"]);
 		return reply;

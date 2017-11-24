@@ -22,17 +22,29 @@ protected:
 private:
 	static CCameraSet * m_pThis;
 	CamList tmpInfo;	//用于取消操作后恢复以前的配置
+	int selIndex = 0;		//当前选择的摄像头项索引
+
+	std::set<CamID> add, mod, del, focus;
 
 	//控件成员
+	CComboBox modeComboList;
 	CComboBox camComboList;
 	CListCtrl camListCtrl;
+	CButton timeCheck;
+	CComboBox timeStart;
+	CComboBox timeEnd;
 public:
 	static CCameraSet * GetInstance();
 
-public:
-	afx_msg void OnBnClickedOk();
-	afx_msg void OnBnClickedCancel();
-	afx_msg void OnUpdateAllCam(CamListUpdate&);
 private:
 	void pullCamInfo();
+	void updateSel();
+public:
+	afx_msg void OnBnClickedOk();
+	afx_msg void OnUpdateAllCam();
+	afx_msg void OnDestroy();
+	afx_msg void OnSelchangeCamComboList();
+	afx_msg void OnSelchangeCamList(NMHDR*, LRESULT*);
+	afx_msg void OnSelchangeMode();
+	afx_msg void OnCancel();
 };

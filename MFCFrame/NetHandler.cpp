@@ -29,7 +29,7 @@ string getReadStr(sock_buf& buffer, size_t size) {
 	auto buf = buffer.data();
 	string s(buffers_begin(buf), buffers_end(buf));
 	buffer.consume(size);
-	s.resize(size - 2);
+	s.resize(size - Message::SPLIT_SIGN.size());
 	return s;
 }
 

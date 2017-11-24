@@ -43,6 +43,7 @@ inline CString getCamModeName(CamMode mode) {
 namespace Config {
 	bool isServerCfgLoaded();
 	void loadLicense();
+	void saveLicense();
 	void loadServerCfg();
 	void saveServerCfg();
 	void clearServerCfg();

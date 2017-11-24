@@ -90,7 +90,7 @@ void CAddCam::OnBnClickedOk()
 	if (!reply.isSuccess()) {
 		//³ö´í´¦Àí
 	}
-	Cams::updateCamList();
+	Cams::pullCamInfoList();
 	CDialogEx::OnOK();
 }
 

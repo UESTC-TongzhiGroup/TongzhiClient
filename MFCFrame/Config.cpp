@@ -34,9 +34,24 @@ namespace Config {
 		Reader reader;
 		ifstream file(ifstream(LICENSE_PATH));
 		reader.parse(file, root);
-		for (auto &child : root["info"]) {
+		for (auto &child : root) {
 			userLicense.insert(make_pair(child["user"].asString(), child["pass"].asString()));
 		}
+		file.close();
+	}
+
+	void saveLicense()
+	{
+		value root = value(Json::arrayValue);
+		auto &info = getLicensesMap();
+		for (auto &entry : info) {
+			value e;
+			e["user"] = entry.first;
+			e["pass"] = entry.second;
+			root.append(e);
+		}
+		ofstream file(LICENSE_PATH);
+		file << root.toStyledString();
 		file.close();
 	}
 
@@ -69,7 +84,7 @@ namespace Config {
 
 		root["user"] = info.loginUser;
 		root["passwd"] = info.loginPass;
-		ofstream file(SERVER_CONFIG_PATH, ofstream::trunc);
+		ofstream file(SERVER_CONFIG_PATH);
 		file << root.toStyledString();
 		file.close();
 	}

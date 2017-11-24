@@ -16,6 +16,8 @@ IMPLEMENT_DYNAMIC(CUserLogin, CDialogEx)
 CUserLogin::CUserLogin(CWnd* pParent)
 	: CDialogEx(CUserLogin::IDD, pParent)
 {
+	Config::loadLicense();
+	registerMode = Config::getLicensesMap().empty();
 	m_SUserName.m_hWnd = NULL;
 	m_Spassword.m_hWnd = NULL;
 	m_login.m_hWnd = NULL;
@@ -74,16 +76,20 @@ int CUserLogin::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_Spassword.CreateEx(_T("密码"), WS_VISIBLE | WS_CHILD, rcClient.left + 60, rcClient.top + 118, 60, 20, m_hWnd, (HMENU)IDC_PASSWORD);
 		m_Spassword.SetImageForButton(IDB_BACK);
 	}
-	
 	return 0;
 }
 
 using namespace StrUtil;
 bool  CUserLogin::checkLicense(CString usr, CString passwd) {
-	auto lmap = Config::getLicensesMap();
-	string usr_str=CStr2std(usr);
+	auto &lmap = Config::getLicensesMap();
+	string usr_str = CStr2std(usr), passwd_str = CStr2std(passwd);
+	if (registerMode) {
+		lmap.insert({ usr_str,passwd_str });
+		Config::saveLicense();
+		return true;
+	}
 	auto pair = lmap.find(usr_str);
-	return pair != lmap.end() && passwd == std2CStr(pair->second);
+	return pair != lmap.end() && passwd_str == pair->second;
 }
 
 
@@ -98,7 +104,6 @@ void CUserLogin::OnBnClickedOk()
 		return;
 	}
 	//TODO:修改登录逻辑
-	//==只能用来与LPTSTR进行相等判断,两个CString之间使用CString::Compare
 	else if(checkLicense(c,b))
 	{
 		//MessageBox(_T("登陆成功！"), _T("登陆"));//这句可有可无        
@@ -109,4 +114,17 @@ void CUserLogin::OnBnClickedOk()
 		return;
 	}
 	CDialogEx::OnOK();
+}
+
+
+BOOL CUserLogin::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+	if (registerMode){
+		GetDlgItem(IDOK)->SetWindowText(_T("注册"));
+		MessageBox(_T("注册说明注册说明注册说明注册说明注册说明注册说明注册说明"), _T("欢迎首次使用"));
+	}
+	return TRUE;  // return TRUE unless you set the focus to a control
+				  // 异常: OCX 属性页应返回 FALSE
 }

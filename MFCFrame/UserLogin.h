@@ -2,6 +2,7 @@
 #include"resource.h"
 #include "ImageButton.h"
 #include "StrUtil.h"
+#include "afxwin.h"
 
 // CUserLogin ¶Ô»°¿ò
 
@@ -26,10 +27,12 @@ public:
 	afx_msg void OnBnClickedOk();
 	bool checkLicense(CString, CString);
 private:
+	bool registerMode = false;
 	CImageButton  m_SUserName; 
 	CImageButton  m_Spassword;
 	CImageButton  m_login;
 public:
 	CEdit m_Name;
 	CEdit m_Password;
+	virtual BOOL OnInitDialog();
 };

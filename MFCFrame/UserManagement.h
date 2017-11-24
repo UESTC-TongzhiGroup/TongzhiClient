@@ -31,8 +31,9 @@ private:
 	CImageButton  m_add;
 	CImageButton  m_alter;
 	CImageButton  m_delete;
-	CAddUser      m_adduser;
-	CModUser      m_moduser;
+
+	CAddUser      userAddDlg;
+	CModUser      userModDlg;
 	static CUserManagement * m_pThis;
 public:
 	static CUserManagement * GetInstance();

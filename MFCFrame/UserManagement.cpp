@@ -11,8 +11,6 @@
 #define	IDC_DELETE	10004
 // CUserManagement ¶Ô»°¿ò
 
-#define WM_SEND_USER_TYPE FRAME_MSG(MsgUtil::MsgType::SEND_USER_TYPE);
-
 IMPLEMENT_DYNAMIC(CUserManagement, CDialogEx)
 
 CUserManagement::CUserManagement(CWnd* pParent /*=NULL*/)
@@ -129,11 +127,11 @@ BOOL CUserManagement::OnCommand(WPARAM wParam, LPARAM lParam)
 		ASSERT(hWndButton);
 		if (m_add.m_hWnd == hWndButton)
 		{
-			m_adduser.DoModal();
+			userAddDlg.DoModal();
 		}
 		if (m_alter.m_hWnd == hWndButton)
 		{
-			m_moduser.DoModal();
+			userModDlg.DoModal();
 		}
 		if (m_delete.m_hWnd == hWndButton)
 		{

@@ -4,16 +4,16 @@
 
 template<UInt TYPE>
 IMPL_OUT(_ConnMsg<TYPE>) {
-	PUT_OUT(user);
-	PUT_OUT(password);
-	PUT_OUT(type);
+	OUT_TO_JSON(user);
+	OUT_TO_JSON(password);
+	OUT_TO_JSON(type);
 }
 
 template<UInt TYPE>
 IMPL_IN(_ConnMsg<TYPE>) {
-	GET_IN(String, user);
-	GET_IN(String, password);
-	GET_IN(String, type);
+	IN_FROM_JSON(String, user);
+	IN_FROM_JSON(String, password);
+	IN_FROM_JSON(String, type);
 }
 
 template<UInt TYPE>
@@ -40,55 +40,55 @@ IMPL_IN(_CamMsg<TYPE>) {
 namespace Message {
 
 	IMPL_OUT(GetWarnLogMsg) {
-		PUT_OUT(time);
-		PUT_OUT(meta);
+		OUT_TO_JSON(time);
+		OUT_TO_JSON(meta);
 	}
 
 	IMPL_IN(GetWarnLogMsg) {
-		GET_IN(String, time);
-		GET_IN(String, meta);
+		IN_FROM_JSON(String, time);
+		IN_FROM_JSON(String, meta);
 	}
 
 	IMPL_OUT(WarnMsg) {
-		PUT_OUT(time);
-		PUT_OUT(route);
-		PUT_OUT(cameraName);
-		PUT_OUT(context);
-		PUT_OUT(producer);
+		OUT_TO_JSON(time);
+		OUT_TO_JSON(route);
+		OUT_TO_JSON(cameraName);
+		OUT_TO_JSON(context);
+		OUT_TO_JSON(producer);
 	}
 
 	IMPL_IN(WarnMsg) {
-		GET_IN(String, time);
-		GET_IN(String, route);
-		GET_IN(String, cameraName);
-		GET_IN(String, context);
-		GET_IN(String, producer);
+		IN_FROM_JSON(String, time);
+		IN_FROM_JSON(String, route);
+		IN_FROM_JSON(String, cameraName);
+		IN_FROM_JSON(String, context);
+		IN_FROM_JSON(String, producer);
 	}
 
 	IMPL_OUT(MsgReply) {
-		PUT_OUT(status);
-		PUT_OUT(meta);
+		OUT_TO_JSON(status);
+		OUT_TO_JSON(meta);
 	}
 
 	IMPL_IN(MsgReply) {
-		GET_IN(String, status);
-		GET_IN(String, meta);
+		IN_FROM_JSON(String, status);
+		IN_FROM_JSON(String, meta);
 	}
 
 	IMPL_OUT(AreaMsg) {
-		PUT_OUT(ID);
-		PUT_OUT(top);
-		PUT_OUT(bottom);
-		PUT_OUT(left);
-		PUT_OUT(right);
+		OUT_TO_JSON(ID);
+		OUT_TO_JSON(top);
+		OUT_TO_JSON(bottom);
+		OUT_TO_JSON(left);
+		OUT_TO_JSON(right);
 	}
 
 	IMPL_IN(AreaMsg) {
-		GET_IN(String, ID);
-		GET_IN(Int, top);
-		GET_IN(Int, bottom);
-		GET_IN(Int, left);
-		GET_IN(Int, right);
+		IN_FROM_JSON(String, ID);
+		IN_FROM_JSON(Int, top);
+		IN_FROM_JSON(Int, bottom);
+		IN_FROM_JSON(Int, left);
+		IN_FROM_JSON(Int, right);
 	}
 
 	IMPL_OUT(WarnLogReply) {
@@ -98,7 +98,7 @@ namespace Message {
 			//out["list"].append(sub);
 			out.append(sub);
 		}
-		PUT_OUT(meta);
+		OUT_TO_JSON(meta);
 	}
 
 	IMPL_IN(WarnLogReply) {
@@ -109,7 +109,7 @@ namespace Message {
 			wrn.fromJsonObj(itor);
 			list.push_back(wrn);
 		}
-		GET_IN(String, meta);
+		IN_FROM_JSON(String, meta);
 	}
 
 	IMPL_OUT(DelCamMsg) {
@@ -143,6 +143,6 @@ namespace Message {
 	}
 
 	IMPL_OUT(HeartBeat) {
-		PUT_OUT(status);
+		OUT_TO_JSON(status);
 	}
 }

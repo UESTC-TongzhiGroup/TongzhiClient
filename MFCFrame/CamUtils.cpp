@@ -22,7 +22,7 @@ CamList & Cams::getCamInfo()
 	return camInfo;
 }
 
-void Cams::updateCamList() {
+void Cams::pullCamInfoList() {
 	camInfo.clear();
 	Message::GetCamListMsg msg;
 	auto reply = MsgHandler::sendReqMsg(msg);
@@ -42,27 +42,27 @@ void CamList::operator+=(const CamInfo &cam) {
 }
 
 void CamInfo::toJsonObj(value& out) {
-	PUT_OUT(ID);
-	PUT_OUT(name);
-	PUT_OUT(url);
-	PUT_OUT(cam_user);
-	PUT_OUT(cam_password);
-	PUT_OUT(time_start);
-	PUT_OUT(time_end);
-	PUT_OUT(mode_name);
-	PUT_OUT(mode);
-	PUT_OUT(active);
+	OUT_TO_JSON(ID);
+	OUT_TO_JSON(name);
+	OUT_TO_JSON(url);
+	OUT_TO_JSON(cam_user);
+	OUT_TO_JSON(cam_password);
+	OUT_TO_JSON(time_start);
+	OUT_TO_JSON(time_end);
+	OUT_TO_JSON(mode_name);
+	OUT_TO_JSON(mode);
+	OUT_TO_JSON(active);
 }
 
 void CamInfo::fromJsonObj(value& in) {
-	GET_IN(String, ID);
-	GET_IN(String, name);
-	GET_IN(String, url);
-	GET_IN(String, cam_user);
-	GET_IN(String, cam_password);
-	GET_IN(String, time_start);
-	GET_IN(String, time_end);
-	GET_IN(String, mode_name);
+	IN_FROM_JSON(String, ID);
+	IN_FROM_JSON(String, name);
+	IN_FROM_JSON(String, url);
+	IN_FROM_JSON(String, cam_user);
+	IN_FROM_JSON(String, cam_password);
+	IN_FROM_JSON(String, time_start);
+	IN_FROM_JSON(String, time_end);
+	IN_FROM_JSON(String, mode_name);
 	GET_IN_BY(String, mode, getCamMode);
-	GET_IN(Bool, active);
+	IN_FROM_JSON(Bool, active);
 }

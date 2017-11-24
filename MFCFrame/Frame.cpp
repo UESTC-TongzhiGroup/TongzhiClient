@@ -40,7 +40,6 @@ BOOL CFrameApp::InitInstance()
 	//_CrtSetBreakAlloc(1169);
 	CWinApp::InitInstance();
 
-	Config::loadLicense();
 	CUserLogin ldlg;
 	if (ldlg.DoModal() == IDOK)
 	{

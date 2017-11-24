@@ -27,4 +27,3 @@ EventBus& EventBus::getEventBus(EID ID)
 {
 	return BUS_MAP.emplace(ID, EventBus()).first->second;
 }
-
